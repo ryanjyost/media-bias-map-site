@@ -25,10 +25,10 @@ export default class Site extends Component {
           width: imageWidth,
           backgroundColor: "#333",
           position: "relative",
-          border: "1px solid #d8d8d8"
+          boxShadow: hover ? "8px 11px 28px -12px rgba(0,0,0,1)" : ""
         }}
-        // onMouseEnter={() => this.setState({ hover: true })}
-        // onMouseLeave={() => this.setState({ hover: false })}
+        onMouseEnter={() => this.setState({ hover: true })}
+        onMouseLeave={() => this.setState({ hover: false })}
       >
         <div
           style={{
@@ -36,22 +36,22 @@ export default class Site extends Component {
             width: imageWidth,
             backgroundImage: `url(${record.image.url})`,
             backgroundSize: "contain",
-            opacity: hover ? 0.2 : 1
+            opacity: hover ? 1 : 0.9
           }}
         />
-        {hover && (
-          <div
-            style={{
-              color: "#fafafa",
-              position: "absolute",
-              bottom: "5px",
-              left: "5px",
-              padding: "10px"
-            }}
-          >
-            {record.site.title}
-          </div>
-        )}
+        {/*{hover && (*/}
+        {/*<div*/}
+        {/*style={{*/}
+        {/*color: "#fafafa",*/}
+        {/*position: "absolute",*/}
+        {/*bottom: "5px",*/}
+        {/*left: "5px",*/}
+        {/*padding: "10px"*/}
+        {/*}}*/}
+        {/*>*/}
+        {/*{record.site.title}*/}
+        {/*</div>*/}
+        {/*)}*/}
         {/*<img*/}
         {/*src={*/}
         {/*"logo" in record*/}
