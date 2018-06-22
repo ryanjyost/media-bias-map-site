@@ -22,9 +22,9 @@ export default class Site extends Component {
         }}
       >
         {style => (
-          <a
-            href={record.site.url}
-            target={"_blank"}
+          <div
+            // href={record.site.url}
+            //target={"_blank"}
             key={index}
             style={{
               margin: siteMargin,
@@ -50,7 +50,7 @@ export default class Site extends Component {
                 opacity: hover ? 1 : 0.9
               }}
             />
-          </a>
+          </div>
         )}
       </Motion>
     );

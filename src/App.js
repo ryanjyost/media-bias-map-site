@@ -3,6 +3,7 @@ import Site from "./components/Site";
 import axios from "axios";
 import Slider from "react-rangeslider";
 import { Motion, spring } from "react-motion";
+import shuffle from "shuffle-array";
 
 export default class App extends Component {
   constructor(props) {
@@ -20,7 +21,6 @@ export default class App extends Component {
       isMenuOpen: true
     };
   }
-
   updateDimensions() {
     let screenWidth = typeof window !== "undefined" ? window.innerWidth : 0;
     let screenHeight = typeof window !== "undefined" ? window.innerHeight : 0;
@@ -56,14 +56,18 @@ export default class App extends Component {
   componentDidMount() {
     //get recent posts
     axios
-      .get(`http://localhost:8000/records/batch/${1529282237311}`, {
-        Accept: "application/json"
-      })
+      .get(
+        `https://media-bias-map.herokuapp.com/records/batch/${1529282237311}`,
+        {
+          Accept: "application/json"
+        }
+      )
       .then(response => {
         //let results = response.body.results;
         // console.log("hey", response.data.records);
         const records = response.data.records;
-        this.setState({ records });
+        const random = shuffle(records, { copy: true });
+        this.setState({ records: random });
       })
       .catch(error => {
         console.log("ERROR", error);
@@ -90,7 +94,8 @@ export default class App extends Component {
       plusClicked,
       minusHovered,
       minusClicked,
-      isMenuOpen
+      isMenuOpen,
+      linksView
     } = this.state;
 
     let siteMargin = 3,
@@ -120,7 +125,7 @@ export default class App extends Component {
             topBarTop: 0,
             wideMenuWidth: 200,
             wideMenuPaddingRight: 20,
-            wideMenuPaddingLeft: 70,
+            wideMenuPaddingLeft: 30,
             wideMenuOpacity: 1
           }}
           style={{
@@ -128,7 +133,7 @@ export default class App extends Component {
             topBarTop: spring(isMenuOpen ? 0 : -6),
             wideMenuWidth: spring(isMenuOpen ? 200 : 0),
             wideMenuPaddingRight: spring(isMenuOpen ? 20 : 0),
-            wideMenuPaddingLeft: spring(isMenuOpen ? 70 : 0),
+            wideMenuPaddingLeft: spring(isMenuOpen ? 30 : 0),
             wideMenuOpacity: spring(isMenuOpen ? 1 : 0)
           }}
         >
@@ -212,7 +217,7 @@ export default class App extends Component {
               {/* Wide Menu */}
               <div
                 style={{
-                  backgroundColor: "#fafafa",
+                  backgroundColor: !linksView ? "#59CFA6" : "#fafafa",
                   height: 50,
                   width: style.wideMenuWidth,
                   borderRadius: 9999,
@@ -221,11 +226,9 @@ export default class App extends Component {
                   // top: "20px",
                   // left: "20px",
                   display: "flex",
-                  alignItems: "center",
+                  alignItems: "stretch",
                   justifyContent: "center",
-                  padding: `0px ${style.wideMenuPaddingRight}px 0px ${
-                    style.wideMenuPaddingLeft
-                  }px`,
+                  padding: `0px ${0}px 0px ${style.wideMenuPaddingLeft}px`,
                   boxShadow: " 8px 11px 28px -12px rgba(0,0,0,1)",
                   border: "1px solid #d8d8d8",
                   cursor: "pointer",
@@ -233,7 +236,45 @@ export default class App extends Component {
                   opacity: style.wideMenuOpacity
                 }}
               >
-                hey
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: 0.55,
+                    borderTopRightRadius: 9999,
+                    borderBottomRightRadius: 9999,
+                    fontSize: 30,
+                    borderRight: "1px solid #d8d8d8",
+                    marginRight: -20,
+                    // paddingLeft: 30,
+                    zIndex: 20,
+                    backgroundColor: !linksView ? "#59CFA6" : "#fafafa",
+                    color: !linksView ? "#fff" : "#888"
+                  }}
+                  onClick={() => this.setState({ linksView: false })}
+                >
+                  <i className={"far fa-images"} />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: 0.45,
+                    borderTopRightRadius: 9999,
+                    borderBottomRightRadius: 9999,
+                    paddingLeft: 15,
+                    backgroundColor: linksView ? "#59CFA6" : "#fafafa",
+                    color: linksView ? "#fff" : "#888",
+                    fontSize: 30
+                    // borderRight: "1px solid #d8d8d8",
+                    // marginRight: -20
+                  }}
+                  onClick={() => this.setState({ linksView: true })}
+                >
+                  <i className={"fas fa-link"} />
+                </div>
               </div>
             </div>
           )}
@@ -284,7 +325,7 @@ export default class App extends Component {
                   this.setState({
                     imageSizeFactor:
                       imageSizeFactor > 1
-                        ? imageSizeFactor - 1
+                        ? imageSizeFactor - 0.5
                         : imageSizeFactor
                   })
                 }
@@ -319,7 +360,7 @@ export default class App extends Component {
                   this.setState({
                     imageSizeFactor:
                       imageSizeFactor < 5
-                        ? imageSizeFactor + 1
+                        ? imageSizeFactor + 0.5
                         : imageSizeFactor
                   })
                 }
@@ -342,10 +383,12 @@ export default class App extends Component {
             flexWrap: "wrap",
             justifyContent: "center"
           }}
+          className={"grabbable"}
         >
           {this.state.records.map((record, i) => {
             return (
               <Site
+                key={i}
                 index={i}
                 record={record}
                 siteMargin={siteMargin}
