@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Motion, spring } from "react-motion";
 
 export default class Site extends Component {
   constructor(props) {
@@ -12,63 +13,46 @@ export default class Site extends Component {
     const { siteMargin, imageHeight, imageWidth, record, index } = this.props;
     const { hover } = this.state;
     return (
-      <a
-        href={record.site.url}
-        target={"_blank"}
-        key={index}
-        style={{
-          margin: siteMargin,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: imageHeight,
-          width: imageWidth,
-          backgroundColor: "#333",
-          position: "relative",
-          boxShadow: hover ? "8px 11px 28px -12px rgba(0,0,0,1)" : ""
+      <Motion
+        defaultStyle={{
+          imageWidth: imageWidth
         }}
-        onMouseEnter={() => this.setState({ hover: true })}
-        onMouseLeave={() => this.setState({ hover: false })}
+        style={{
+          imageWidth: spring(imageWidth)
+        }}
       >
-        <div
-          style={{
-            height: imageHeight,
-            width: imageWidth,
-            backgroundImage: `url(${record.image.url})`,
-            backgroundSize: "contain",
-            opacity: hover ? 1 : 0.9
-          }}
-        />
-        {/*{hover && (*/}
-        {/*<div*/}
-        {/*style={{*/}
-        {/*color: "#fafafa",*/}
-        {/*position: "absolute",*/}
-        {/*bottom: "5px",*/}
-        {/*left: "5px",*/}
-        {/*padding: "10px"*/}
-        {/*}}*/}
-        {/*>*/}
-        {/*{record.site.title}*/}
-        {/*</div>*/}
-        {/*)}*/}
-        {/*<img*/}
-        {/*src={*/}
-        {/*"logo" in record*/}
-        {/*? record.logo*/}
-        {/*: "http://res.cloudinary.com/ryanjyost/image/upload/v1529254420/logos/cnn-logo.jpg"*/}
-        {/*}*/}
-        {/*style={{*/}
-        {/*margin: "auto",*/}
-        {/*position: "absolute",*/}
-        {/*top: 0,*/}
-        {/*left: 0,*/}
-        {/*bottom: 0,*/}
-        {/*right: 0*/}
-        {/*}}*/}
-        {/*height={30}*/}
-        {/*/>*/}
-      </a>
+        {style => (
+          <a
+            href={record.site.url}
+            target={"_blank"}
+            key={index}
+            style={{
+              margin: siteMargin,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: imageHeight,
+              // width: style.imageWidth,
+              width: imageWidth,
+              backgroundColor: "#333",
+              position: "relative",
+              boxShadow: hover ? "8px 11px 28px -12px rgba(0,0,0,1)" : ""
+            }}
+            onMouseEnter={() => this.setState({ hover: true })}
+            onMouseLeave={() => this.setState({ hover: false })}
+          >
+            <div
+              style={{
+                height: imageHeight,
+                width: imageWidth,
+                backgroundImage: `url(${record.image.url})`,
+                backgroundSize: "contain",
+                opacity: hover ? 1 : 0.9
+              }}
+            />
+          </a>
+        )}
+      </Motion>
     );
   }
 }
