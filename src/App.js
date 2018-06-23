@@ -18,9 +18,16 @@ export default class App extends Component {
       minusHovered: false,
       minusClicked: false,
       linksView: false,
-      isMenuOpen: true
+      isMenuOpen: true,
+      isWideView: true,
+
+      // drag scroll
+      isMouseDown: false,
+      startX: 0,
+      startY: 0
     };
   }
+
   updateDimensions() {
     let screenWidth = typeof window !== "undefined" ? window.innerWidth : 0;
     let screenHeight = typeof window !== "undefined" ? window.innerHeight : 0;
@@ -84,6 +91,22 @@ export default class App extends Component {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
   }
 
+  handleMouseDown(e) {
+    this.setState({ isMouseDown: true, startX: e.clientX, startY: e.clientY });
+  }
+
+  handleMouseMove(e) {
+    window.scrollTo({
+      left: window.scrollX + this.state.startX - e.clientX,
+      top: window.scrollY + this.state.startY - e.clientY,
+      behavior: "smooth"
+    });
+  }
+
+  handleMouseUp(e) {
+    this.setState({ isMouseDown: false });
+  }
+
   render() {
     const {
       records,
@@ -95,35 +118,29 @@ export default class App extends Component {
       minusHovered,
       minusClicked,
       isMenuOpen,
-      linksView
+      linksView,
+      isWideView,
+      isMouseDown
     } = this.state;
 
-    let siteMargin = 3,
+    let siteMargin = 1,
       sitesWide = 5,
       containerWidth = screenWidth;
 
     let imageHeight = 1024 / imageSizeFactor;
     let imageWidth = 1024 / imageSizeFactor;
 
-    sitesWide = Math.max(Math.floor(screenWidth / imageWidth), 5);
+    sitesWide = Math.max(Math.floor(screenWidth / imageWidth), 6);
     containerWidth = (imageWidth + siteMargin * 2) * sitesWide;
 
     return (
-      <div
-        style={{
-          overflow: "auto",
-          height: "calc(100vh)",
-          width: "calc(100%)",
-          backgroundColor: "#d8d8d8",
-          position: "relative"
-        }}
-      >
+      <div>
         {/* Hamburger menu */}
         <Motion
           defaultStyle={{
             topBarRotation: 0,
             topBarTop: 0,
-            wideMenuWidth: 200,
+            wideMenuWidth: 180,
             wideMenuPaddingRight: 20,
             wideMenuPaddingLeft: 30,
             wideMenuOpacity: 1
@@ -131,7 +148,7 @@ export default class App extends Component {
           style={{
             topBarRotation: spring(isMenuOpen ? 45 : 0),
             topBarTop: spring(isMenuOpen ? 0 : -6),
-            wideMenuWidth: spring(isMenuOpen ? 200 : 0),
+            wideMenuWidth: spring(isMenuOpen ? 180 : 0),
             wideMenuPaddingRight: spring(isMenuOpen ? 20 : 0),
             wideMenuPaddingLeft: spring(isMenuOpen ? 30 : 0),
             wideMenuOpacity: spring(isMenuOpen ? 1 : 0)
@@ -149,7 +166,7 @@ export default class App extends Component {
             >
               <div
                 style={{
-                  backgroundColor: isMenuOpen ? "#d8d8d8" : "#59CFA6",
+                  backgroundColor: isMenuOpen ? "#fafafa" : "#59CFA6",
                   height: 52,
                   width: 52,
                   borderRadius: 9999,
@@ -214,10 +231,10 @@ export default class App extends Component {
                 </div>
               </div>
 
-              {/* Wide Menu */}
+              {/* Wide Menu Horz */}
               <div
                 style={{
-                  backgroundColor: !linksView ? "#59CFA6" : "#fafafa",
+                  backgroundColor: !linksView ? "#59CFA6" : "#e5e5e5",
                   height: 50,
                   width: style.wideMenuWidth,
                   borderRadius: 9999,
@@ -244,12 +261,12 @@ export default class App extends Component {
                     flex: 0.55,
                     borderTopRightRadius: 9999,
                     borderBottomRightRadius: 9999,
-                    fontSize: 30,
+                    fontSize: 24,
                     borderRight: "1px solid #d8d8d8",
                     marginRight: -20,
                     // paddingLeft: 30,
                     zIndex: 20,
-                    backgroundColor: !linksView ? "#59CFA6" : "#fafafa",
+                    backgroundColor: !linksView ? "#59CFA6" : "#e5e5e5",
                     color: !linksView ? "#fff" : "#888"
                   }}
                   onClick={() => this.setState({ linksView: false })}
@@ -265,15 +282,74 @@ export default class App extends Component {
                     borderTopRightRadius: 9999,
                     borderBottomRightRadius: 9999,
                     paddingLeft: 15,
-                    backgroundColor: linksView ? "#59CFA6" : "#fafafa",
+                    backgroundColor: linksView ? "#59CFA6" : "#e5e5e5",
                     color: linksView ? "#fff" : "#888",
-                    fontSize: 30
-                    // borderRight: "1px solid #d8d8d8",
-                    // marginRight: -20
+                    fontSize: 24
                   }}
                   onClick={() => this.setState({ linksView: true })}
                 >
                   <i className={"fas fa-link"} />
+                </div>
+              </div>
+
+              {/* Wide Menu Vert */}
+              <div
+                style={{
+                  backgroundColor: !linksView ? "#59CFA6" : "#e5e5e5",
+                  height: style.wideMenuWidth,
+                  width: 50,
+                  borderRadius: 9999,
+                  zIndex: 10,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "stretch",
+                  justifyContent: "center",
+                  padding: `${style.wideMenuPaddingLeft}px ${0}px 0px 0px`,
+                  boxShadow: " 8px 11px 28px -12px rgba(0,0,0,1)",
+                  border: "1px solid #d8d8d8",
+                  cursor: "pointer",
+                  position: "absolute",
+                  opacity: style.wideMenuOpacity
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: 0.55,
+                    borderBottomRightRadius: 9999,
+                    borderBottomLeftRadius: 9999,
+                    fontSize: 24,
+                    borderBottom: "1px solid #d8d8d8",
+                    marginBottom: -20,
+                    // paddingTop: 30,
+                    zIndex: 20,
+                    backgroundColor: isWideView ? "#59CFA6" : "#e5e5e5",
+                    color: isWideView ? "#fff" : "#888"
+                  }}
+                  onClick={() => this.setState({ isWideView: true })}
+                >
+                  <i className={"fas fa-expand-arrows-alt"} />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: 0.45,
+                    borderBottomLeftRadius: 9999,
+                    borderBottomRightRadius: 9999,
+                    paddingTop: 15,
+                    backgroundColor: !isWideView ? "#59CFA6" : "#e5e5e5",
+                    color: !isWideView ? "#fff" : "#888",
+                    fontSize: 24
+                    // borderRight: "1px solid #d8d8d8",
+                    // marginRight: -20
+                  }}
+                  onClick={() => this.setState({ isWideView: false })}
+                >
+                  <i className={"fas fa-arrows-alt-v"} />
                 </div>
               </div>
             </div>
@@ -310,11 +386,7 @@ export default class App extends Component {
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  backgroundColor: plusClicked
-                    ? "#59CFA6CC"
-                    : "imageSizeFactor" < 2
-                      ? "#d8d8d8"
-                      : "#59CFA6",
+                  backgroundColor: plusClicked ? "#59CFA6CC" : "#59CFA6",
                   borderTopLeftRadius: 9999,
                   borderTopRightRadius: 9999,
                   fontSize: 30,
@@ -334,7 +406,7 @@ export default class App extends Component {
                 onMouseDown={() => this.setState({ plusClicked: true })}
                 onMouseUp={() => this.setState({ plusClicked: false })}
               >
-                {imageSizeFactor < 2 ? null : "+"}
+                {imageSizeFactor < 1.5 ? null : "+"}
               </div>
               <div
                 className={"disableTextSelect"}
@@ -345,11 +417,7 @@ export default class App extends Component {
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  backgroundColor: minusClicked
-                    ? "#d8d8d8"
-                    : imageSizeFactor > 4
-                      ? "#f2f2f2"
-                      : "#fafafa",
+                  backgroundColor: minusClicked ? "#d8d8d8" : "#fafafa",
                   borderBottomLeftRadius: 9999,
                   borderBottomRightRadius: 9999,
                   fontSize: minusHovered ? 50 : 45,
@@ -369,7 +437,7 @@ export default class App extends Component {
                 onMouseDown={() => this.setState({ minusClicked: true })}
                 onMouseUp={() => this.setState({ minusClicked: false })}
               >
-                {imageSizeFactor > 4 ? null : "-"}
+                {imageSizeFactor > 4.5 ? null : "-"}
               </div>
             </div>
           )}
@@ -377,13 +445,27 @@ export default class App extends Component {
 
         <div
           style={{
-            width: containerWidth + 10,
+            width: isWideView ? containerWidth + 10 : screenWidth,
             margin: "auto",
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "center"
           }}
+          onMouseDown={e => this.handleMouseDown(e)}
+          onMouseMove={e => {
+            if (isMouseDown) {
+              this.handleMouseMove(e);
+            }
+          }}
+          onMouseUp={e => this.handleMouseUp(e)}
+          onDoubleClick={() => {
+            this.setState({
+              imageSizeFactor:
+                imageSizeFactor > 1 ? imageSizeFactor - 0.5 : imageSizeFactor
+            });
+          }}
           className={"grabbable"}
+          id={"main"}
         >
           {this.state.records.map((record, i) => {
             return (

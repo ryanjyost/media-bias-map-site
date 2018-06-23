@@ -35,8 +35,7 @@ export default class Site extends Component {
               // width: style.imageWidth,
               width: imageWidth,
               backgroundColor: "#333",
-              position: "relative",
-              boxShadow: hover ? "8px 11px 28px -12px rgba(0,0,0,1)" : ""
+              position: "relative"
             }}
             onMouseEnter={() => this.setState({ hover: true })}
             onMouseLeave={() => this.setState({ hover: false })}
@@ -46,8 +45,7 @@ export default class Site extends Component {
                 height: imageHeight,
                 width: imageWidth,
                 backgroundImage: `url(${record.image.url})`,
-                backgroundSize: "contain",
-                opacity: hover ? 1 : 0.9
+                backgroundSize: "contain"
               }}
             />
           </div>
