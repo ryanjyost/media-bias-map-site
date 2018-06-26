@@ -17,11 +17,12 @@ export default class App extends Component {
       plusClicked: false,
       minusHovered: false,
       minusClicked: false,
-      linksView: true,
+      linksView: false,
       isMenuOpen: false,
       showMenuText: false,
       isWideView: true,
       showScrollTop: false,
+      hideSources: false,
 
       // drag scroll
       isMouseDown: false,
@@ -153,7 +154,8 @@ export default class App extends Component {
       isWideView,
       showMenuText,
       isMouseDown,
-      showScrollTop
+      showScrollTop,
+      hideSources
     } = this.state;
 
     let siteMargin = 1,
@@ -173,13 +175,13 @@ export default class App extends Component {
           defaultStyle={{
             topBarRotation: 0,
             topBarTop: 0,
-            wideMenuWidth: 200,
-            menuHeight: 120,
-            wideMenuPaddingRight: 20,
-            wideMenuPaddingLeft: 30,
-            wideMenuOpacity: 1,
+            wideMenuWidth: 0,
+            menuHeight: 0,
+            wideMenuPaddingRight: 0,
+            wideMenuPaddingLeft: 0,
+            wideMenuOpacity: 0,
             borderRadius: 3,
-            buttonOpacity: 1
+            buttonOpacity: 0
           }}
           style={{
             topBarRotation: spring(isMenuOpen ? 45 : 0),
@@ -376,18 +378,30 @@ export default class App extends Component {
                     fontSize: 18,
                     zIndex: 20,
                     color: showMenuText
-                      ? isWideView
+                      ? (!linksView && isWideView) ||
+                        (linksView && !hideSources)
                         ? "#fff"
                         : "rgba(255, 255, 255, 0.7)"
                       : "transparent",
-                    borderLeft: isWideView
-                      ? "3px solid #59CFA6"
-                      : "3px solid rgb(51, 55, 70)",
+                    borderLeft:
+                      (!linksView && isWideView) || (linksView && !hideSources)
+                        ? "3px solid #59CFA6"
+                        : "3px solid rgb(51, 55, 70)",
                     opacity: style.wideMenuOpacity
                   }}
-                  onClick={() => this.setState({ isWideView: true })}
+                  onClick={() => {
+                    if (linksView) {
+                      this.setState({ hideSources: false });
+                    } else {
+                      this.setState({ isWideView: true });
+                    }
+                  }}
                 >
-                  <i className={"fas fa-expand-arrows-alt"} />
+                  {linksView ? (
+                    <i className={"fas fa-eye"} />
+                  ) : (
+                    <i className={"fas fa-expand-arrows-alt"} />
+                  )}
                 </a>
                 <a
                   className={"menuLink"}
@@ -399,19 +413,31 @@ export default class App extends Component {
                     borderBottomLeftRadius: 3,
                     borderBottomRightRadius: 3,
                     color: showMenuText
-                      ? !isWideView
+                      ? (!linksView && !isWideView) ||
+                        (linksView && hideSources)
                         ? "#fff"
                         : "rgba(255, 255, 255, 0.7)"
                       : "transparent",
                     fontSize: 18,
-                    borderLeft: !isWideView
-                      ? "3px solid #59CFA6"
-                      : "3px solid rgb(51, 55, 70)",
+                    borderLeft:
+                      (!linksView && !isWideView) || (linksView && hideSources)
+                        ? "3px solid #59CFA6"
+                        : "3px solid rgb(51, 55, 70)",
                     opacity: style.wideMenuOpacity
                   }}
-                  onClick={() => this.setState({ isWideView: false })}
+                  onClick={() => {
+                    if (linksView) {
+                      this.setState({ hideSources: true });
+                    } else {
+                      this.setState({ isWideView: false });
+                    }
+                  }}
                 >
-                  <i className={"fas fa-arrows-alt-v"} />
+                  {linksView ? (
+                    <i className={"fas fa-eye-slash"} />
+                  ) : (
+                    <i className={"fas fa-arrows-alt-v"} />
+                  )}
                 </a>
               </div>
             </div>
@@ -586,7 +612,7 @@ export default class App extends Component {
               backgroundColor: "#fcfcfc"
             }}
           >
-            <Links records={records} />
+            <Links records={records} hideSources={hideSources} />
           </div>
         )}
       </div>

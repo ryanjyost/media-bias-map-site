@@ -4,11 +4,18 @@ import shuffle from "shuffle-array";
 import axios from "axios";
 import _array from "lodash/array";
 import Link from "./Link";
+import Loader from "react-loader-spinner";
 
 export default class Links extends Component {
   constructor(props) {
     super(props);
-    this.state = { links: [], search: "", filterActive: false, pulse: false };
+    this.state = {
+      links: [],
+      search: "",
+      filterActive: false,
+      pulse: false,
+      gotLinks: false
+    };
   }
 
   componentDidMount() {
@@ -39,7 +46,11 @@ export default class Links extends Component {
 
         const shuffled = shuffle(flattened, { copy: true });
 
-        this.setState({ links: shuffled, batch: response.data.batch });
+        this.setState({
+          links: shuffled,
+          batch: response.data.batch,
+          gotLinks: true
+        });
       })
       .catch(error => {
         console.log("ERROR", error);
@@ -90,146 +101,171 @@ export default class Links extends Component {
       return cleanTitle.includes(search);
     });
 
-    return (
-      <div
-        style={{
-          padding: "80px 5% 20px 5%",
-          maxWidth: 700,
-          width: "96%",
-          margin: "auto"
-        }}
-      >
+    if (!this.state.gotLinks) {
+      return (
         <div
           style={{
+            height: "100vh",
+            width: "100%",
             display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
-            marginBottom: 10
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <Loader type="Oval" color="#00BFFF" height="100" width="100" />
+        </div>
+      );
+    } else {
+      return (
+        <div
+          style={{
+            padding: "80px 5% 20px 5%",
+            maxWidth: 700,
+            width: "96%",
+            margin: "auto"
           }}
         >
           <div
             style={{
               display: "flex",
-              flexWrap: "wrap",
-              maxWidth: 400,
-              justifyContent: "flex-end"
+              flexDirection: "column",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginBottom: 10
             }}
           >
-            {this.state.batch
-              ? this.state.batch.tags.map((tag, i) => {
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        fontSize: 18,
-                        margin: 3,
-                        padding: "4px 9px",
-                        borderRadius: 3,
-                        backgroundColor: "rgb(51, 55, 70, 1)",
-                        color: "rgba(255,255,255,0.95)",
-                        cursor: "pointer"
-                      }}
-                      onClick={() => this.handleSearch(tag.toLowerCase())}
-                    >
-                      {tag}
-                    </div>
-                  );
-                })
-              : null}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              border: filterActive
-                ? "1px solid rgba(51, 55, 70, 1)"
-                : "1px solid rgba(51, 55, 70, 0.3)",
-              padding: "0px 10px",
-              marginTop: 10,
-              marginBottom: 10,
-              borderRadius: 9999,
-              color: filterActive
-                ? "rgba(51, 55, 70, 1)"
-                : "rgba(51, 55, 70, 0.3)"
-            }}
-            className={"searchInput"}
-          >
-            <i
-              className={"fa fa-search"}
+            <div
               style={{
+                display: "flex",
+                flexWrap: "wrap",
+                maxWidth: 400,
+                justifyContent: "flex-end"
+              }}
+            >
+              {this.state.batch
+                ? this.state.batch.tags.map((tag, i) => {
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          fontSize: 18,
+                          margin: 3,
+                          padding: "4px 9px",
+                          borderRadius: 3,
+                          backgroundColor: "rgb(51, 55, 70, 1)",
+                          color: "rgba(255,255,255,0.95)",
+                          cursor: "pointer"
+                        }}
+                        onClick={() => this.handleSearch(tag.toLowerCase())}
+                      >
+                        {tag}
+                      </div>
+                    );
+                  })
+                : null}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                border: filterActive
+                  ? "1px solid rgba(51, 55, 70, 1)"
+                  : "1px solid rgba(51, 55, 70, 0.3)",
+                padding: "0px 10px",
+                marginTop: 10,
+                marginBottom: 10,
+                borderRadius: 9999,
                 color: filterActive
                   ? "rgba(51, 55, 70, 1)"
                   : "rgba(51, 55, 70, 0.3)"
               }}
-            />
-            <input
-              type={"text"}
-              value={this.state.search}
-              placeholder={"Search headlines"}
-              onChange={e => this.handleSearch(e.target.value.toLowerCase())}
-              onFocus={() => this.setState({ filterActive: true })}
-              onBlur={() => this.setState({ filterActive: false })}
-              style={{
-                width: "90%",
-                maxWidth: 300,
-                borderRadius: 3,
-                border: "1px solid transparent",
-                padding: "5px 10px",
-                fontSize: 16,
-                fontWeight: "400",
-                textAlign: "left",
-                letterSpacing: "0.03em"
-              }}
-            />
-            <i
-              className={"fas fa-times"}
-              style={{
-                color:
-                  search.length > 0
-                    ? "rgba(51, 55, 70, 0.8)"
-                    : "rgba(51, 55, 70, 0)",
-                cursor: "pointer"
-              }}
-              onClick={() => this.setState({ search: "" })}
-            />
-          </div>
-        </div>
-
-        <Motion
-          defaultStyle={{ pulseOpacity: 0 }}
-          style={{ pulseOpacity: spring(this.state.pulse ? 0.2 : 0) }}
-        >
-          {style => (
-            <div
-              style={{
-                backgroundColor: `rgba(89, 207, 166, ${style.pulseOpacity})`,
-                padding: 10,
-                borderRadius: 5
-              }}
+              className={"searchInput"}
             >
-              {filteredLinks.length > 0 ? (
-                filteredLinks.map((link, i) => {
-                  return <Link link={link} key={i} i={i} />;
-                })
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    padding: "5px 10px",
-                    margin: 5,
-                    flexDirection: "column"
-                  }}
-                >
-                  <h4 style={{ textAlign: "center", color: "rgba(0,0,0,0.7)" }}>
-                    We couldn't find any headlines that match your search
-                  </h4>
-                </div>
-              )}
+              <i
+                className={"fa fa-search"}
+                style={{
+                  color: filterActive
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.3)"
+                }}
+              />
+              <input
+                type={"text"}
+                value={this.state.search}
+                placeholder={"Search headlines"}
+                onChange={e => this.handleSearch(e.target.value.toLowerCase())}
+                onFocus={() => this.setState({ filterActive: true })}
+                onBlur={() => this.setState({ filterActive: false })}
+                style={{
+                  width: "90%",
+                  maxWidth: 300,
+                  borderRadius: 3,
+                  border: "1px solid transparent",
+                  padding: "5px 10px",
+                  fontSize: 16,
+                  fontWeight: "400",
+                  textAlign: "left",
+                  letterSpacing: "0.03em"
+                }}
+              />
+              <i
+                className={"fas fa-times"}
+                style={{
+                  color:
+                    search.length > 0
+                      ? "rgba(51, 55, 70, 0.8)"
+                      : "rgba(51, 55, 70, 0)",
+                  cursor: "pointer"
+                }}
+                onClick={() => this.setState({ search: "" })}
+              />
             </div>
-          )}
-        </Motion>
-      </div>
-    );
+          </div>
+
+          <Motion
+            defaultStyle={{ pulseOpacity: 0 }}
+            style={{ pulseOpacity: spring(this.state.pulse ? 0.2 : 0) }}
+          >
+            {style => (
+              <div
+                style={{
+                  backgroundColor: `rgba(89, 207, 166, ${style.pulseOpacity})`,
+                  padding: 10,
+                  borderRadius: 5
+                }}
+              >
+                {filteredLinks.length > 0 ? (
+                  filteredLinks.map((link, i) => {
+                    return (
+                      <Link
+                        link={link}
+                        key={i}
+                        i={i}
+                        hideSource={this.props.hideSources}
+                      />
+                    );
+                  })
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      padding: "5px 10px",
+                      margin: 5,
+                      flexDirection: "column"
+                    }}
+                  >
+                    <h4
+                      style={{ textAlign: "center", color: "rgba(0,0,0,0.7)" }}
+                    >
+                      We couldn't find any headlines that match your search
+                    </h4>
+                  </div>
+                )}
+              </div>
+            )}
+          </Motion>
+        </div>
+      );
+    }
   }
 }

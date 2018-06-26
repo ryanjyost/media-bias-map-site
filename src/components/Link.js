@@ -8,7 +8,8 @@ export default class Link extends Component {
   }
 
   render() {
-    const { link, i } = this.props;
+    const { link, i, hideSource } = this.props;
+    const { hover } = this.state;
     return (
       <a
         key={i}
@@ -34,18 +35,24 @@ export default class Link extends Component {
             style={{
               fontSize: 16,
               color: "rgba(0, 0, 0, 0.9)",
-              textDecoration: "none",
+              textDecoration: hover ? "underline" : "none",
               padding: "0px 0px 3px 0px"
             }}
           >
             {link.text}
           </div>
         </div>
-        <div
-          style={{ color: "rgba(0,0,0,0.6)", textAlign: "left", fontSize: 12 }}
-        >
-          {link.site.title}
-        </div>
+        {hideSource ? null : (
+          <div
+            style={{
+              color: "rgba(0,0,0,0.6)",
+              textAlign: "left",
+              fontSize: 12
+            }}
+          >
+            {link.site.title}
+          </div>
+        )}
       </a>
     );
   }

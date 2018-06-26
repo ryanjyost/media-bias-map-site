@@ -6,13 +6,14 @@ export default class Site extends Component {
     super(props);
     this.state = {
       hover: false,
-      hoverLink: false
+      hoverLink: false,
+      loaded: false
     };
   }
 
   render() {
     const { siteMargin, imageHeight, imageWidth, record, index } = this.props;
-    const { hover, hoverLink } = this.state;
+    const { hover, hoverLink, loaded } = this.state;
     return (
       <Motion
         defaultStyle={{
@@ -41,13 +42,15 @@ export default class Site extends Component {
             onMouseEnter={() => this.setState({ hover: true })}
             onMouseLeave={() => this.setState({ hover: false })}
           >
-            <div
+            <img
               style={{
                 height: imageHeight,
                 width: imageWidth,
-                backgroundImage: `url(${record.image.url})`,
-                backgroundSize: "contain"
+                display: loaded ? "" : "none"
               }}
+              draggable="false"
+              src={record.image.url}
+              onLoad={() => this.setState({ loaded: true })}
             />
             <a
               href={record.site.url}
