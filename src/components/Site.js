@@ -5,26 +5,27 @@ export default class Site extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      hover: false
+      hover: false,
+      hoverLink: false
     };
   }
 
   render() {
     const { siteMargin, imageHeight, imageWidth, record, index } = this.props;
-    const { hover } = this.state;
+    const { hover, hoverLink } = this.state;
     return (
       <Motion
         defaultStyle={{
-          imageWidth: imageWidth
+          imageWidth: imageWidth,
+          linkPosition: -50
         }}
         style={{
-          imageWidth: spring(imageWidth)
+          imageWidth: spring(imageWidth),
+          linkPosition: spring(this.state.hover ? 10 : -50)
         }}
       >
         {style => (
           <div
-            // href={record.site.url}
-            //target={"_blank"}
             key={index}
             style={{
               margin: siteMargin,
@@ -48,6 +49,31 @@ export default class Site extends Component {
                 backgroundSize: "contain"
               }}
             />
+            <a
+              href={record.site.url}
+              target={"_blank"}
+              style={{
+                width: 40,
+                height: 40,
+                backgroundColor: "#fff",
+                opacity: hoverLink ? 1 : hover ? 0.8 : 0,
+                position: "absolute",
+                top: 10,
+                right: 10,
+                zIndex: 2,
+                boxShadow: "8px 11px 28px -12px rgba(0,0,0,1)",
+                borderRadius: 9999,
+                border: "1px solid #f2f2f2",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#333746"
+              }}
+              onMouseEnter={() => this.setState({ hoverLink: true })}
+              onMouseLeave={() => this.setState({ hoverLink: false })}
+            >
+              <i className="fas fa-external-link-alt" />
+            </a>
           </div>
         )}
       </Motion>

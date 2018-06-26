@@ -1,7 +1,6 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -9,6 +8,11 @@ body {
   -ms-user-select: none;
   user-select: none;
   background-color: #fafafa;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+input:active, input:focus {
+  outline: none !important;
 }
 
 
@@ -35,3 +39,34 @@ body {
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
 }
+
+.menuLink {
+  transition: color 0.3s linear;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.menuLink:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+.articleLink, articleLink:hover, articleLink:active, articleLink:focus, .articleLink:visited   {
+  text-decoration: none !important;
+}
+
+.articleLink:visited {
+  color: red;
+}
+
+input {
+  color: rgba(51, 55, 70, 0.5) !important;
+}
+
+input::placeholder {
+  font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+input:active, input:focus  {
+  color: rgba(51, 55, 70, 1) !important;
+}
+
+
