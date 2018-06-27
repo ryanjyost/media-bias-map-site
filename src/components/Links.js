@@ -99,7 +99,13 @@ export default class Links extends Component {
       let cleanTitle = link.text
         .toLowerCase()
         .replace(/[,\/#!$%\^&\*;:{}=_`~()]/g, "");
-      return cleanTitle.includes(cleanSearch);
+
+      let titleArray = cleanTitle.split(" ");
+      let titleWithoutHpyphens = cleanTitle.replace("-", " ");
+      return (
+        cleanTitle.includes(cleanSearch) ||
+        titleWithoutHpyphens.includes(cleanSearch)
+      );
     });
 
     if (!this.state.gotLinks) {
