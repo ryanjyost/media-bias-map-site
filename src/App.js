@@ -398,10 +398,9 @@ export default class App extends Component {
                   justifyContent: "center",
                   borderTopRightRadius: 3,
                   borderBottomRightRadius: 3,
-                  boxShadow:
-                    isFirstVisit || true
-                      ? ""
-                      : "8px 11px 28px -12px rgba(0,0,0,1)",
+                  boxShadow: isFirstVisit
+                    ? ""
+                    : "8px 11px 28px -12px rgba(0,0,0,1)",
                   cursor: "pointer",
                   position: "absolute",
                   opacity: style.wideMenuOpacity,
