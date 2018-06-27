@@ -4,11 +4,20 @@ import axios from "axios";
 import { Motion, spring } from "react-motion";
 import shuffle from "shuffle-array";
 import Links from "./components/Links";
+import SimpleStorage from "react-simple-storage";
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      linksView: false,
+      hideSources: false,
+      isWideView: true,
+      isFirstVisit: true,
+
+      // nonsaved
+      isMenuOpen: false,
+      showMenuText: false,
       records: [],
       screenWidth: 0,
       screenHeight: 0,
@@ -17,12 +26,8 @@ export default class App extends Component {
       plusClicked: false,
       minusHovered: false,
       minusClicked: false,
-      linksView: false,
-      isMenuOpen: false,
-      showMenuText: false,
-      isWideView: true,
+
       showScrollTop: false,
-      hideSources: false,
 
       // drag scroll
       isMouseDown: false,
@@ -99,6 +104,8 @@ export default class App extends Component {
       "scroll",
       this.throttle(this.handleScroll.bind(this), 200)
     );
+
+    this.handleShowMenu();
   }
 
   componentWillUnmount() {
@@ -128,6 +135,9 @@ export default class App extends Component {
   handleShowMenu() {
     if (this.state.isMenuOpen) {
       this.setState({ isMenuOpen: false, showMenuText: false });
+      if (this.state.isFirstVisit) {
+        this.setState({ isFirstVisit: false });
+      }
     } else {
       this.setState({ isMenuOpen: true });
       setTimeout(
@@ -155,10 +165,11 @@ export default class App extends Component {
       showMenuText,
       isMouseDown,
       showScrollTop,
-      hideSources
+      hideSources,
+      isFirstVisit
     } = this.state;
 
-    let siteMargin = 1,
+    let siteMargin = 5,
       sitesWide = 5,
       imageContainerWidth = screenWidth;
 
@@ -170,6 +181,104 @@ export default class App extends Component {
 
     return (
       <div>
+        {isFirstVisit ? (
+          <Motion
+            defaultStyle={{
+              height: 0,
+              width: 0,
+              opacity: 0
+            }}
+            style={{
+              height: spring(isFirstVisit ? 118 : 0),
+              width: spring(isFirstVisit ? 200 : 0),
+              opacity: spring(isFirstVisit ? 1 : 0)
+            }}
+          >
+            {style => (
+              <div
+                style={{
+                  position: "fixed",
+                  width: style.width,
+                  height: style.height,
+                  opacity: style.opacity,
+                  zIndex: 99,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  top: "60px",
+                  left: "60px",
+                  boxShadow: "8px 11px 28px -12px rgba(0,0,0,0.5)",
+                  backgroundColor: "rgba(240,240,240,0.98)",
+                  border: "1px solid #f2f2f2",
+                  borderBottomRightRadius: 3
+                }}
+              >
+                <div
+                  style={{
+                    padding: "0px 10px 0px 10px",
+                    fontSize: 12,
+                    opacity: style.opacity,
+                    color: "rgba(0,0,0,0.6)"
+                  }}
+                >
+                  Welcome to
+                </div>
+                <div
+                  style={{
+                    padding: "0px 10px",
+                    fontSize: 20,
+                    opacity: style.opacity,
+                    fontWeight: "bold"
+                  }}
+                >
+                  Bird's Eye News
+                </div>
+                <div
+                  style={{
+                    padding: "0px 12px",
+                    fontSize: 14,
+                    opacity: style.opacity,
+                    color: "rgba(0,0,0,0.5)"
+                  }}
+                >
+                  where you can{" "}
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      color: "#59CFA6",
+                      letterSpacing: "0.05em",
+                      fontSize: 16,
+                      opacity: style.opacity
+                    }}
+                  >
+                    fly above the bullshit.
+                  </span>
+                </div>
+              </div>
+            )}
+          </Motion>
+        ) : null}
+        <SimpleStorage
+          parent={this}
+          blacklist={[
+            "isFirstVisit",
+            "records",
+            "screenWidth",
+            "screenHeight",
+            "imageSizeFactor",
+            "plusHovered",
+            "plusClicked",
+            "minusHovered",
+            "minusClicked",
+            "showScrollTop",
+            "isMouseDown",
+            "startX",
+            "startY",
+            "isMenuOpen",
+            "showMenuText"
+          ]}
+        />
+
         {/* Hamburger menu */}
         <Motion
           defaultStyle={{
@@ -198,7 +307,7 @@ export default class App extends Component {
           {style => (
             <div
               style={{
-                zIndex: 10,
+                zIndex: 100,
                 top: "20px",
                 left: "20px",
                 position: "fixed",
@@ -241,7 +350,6 @@ export default class App extends Component {
                         : "#fff",
                       zIndex: 20,
                       position: "absolute",
-                      // borderRadius: 30,
                       top: isMenuOpen ? "0px" : `${-style.topBarTop}px`,
                       // marginTop: style.topBarMargin,
                       transform: `rotate(${style.topBarRotation}deg)`
@@ -290,7 +398,10 @@ export default class App extends Component {
                   justifyContent: "center",
                   borderTopRightRadius: 3,
                   borderBottomRightRadius: 3,
-                  boxShadow: "8px 11px 28px -12px rgba(0,0,0,1)",
+                  boxShadow:
+                    isFirstVisit || true
+                      ? ""
+                      : "8px 11px 28px -12px rgba(0,0,0,1)",
                   cursor: "pointer",
                   position: "absolute",
                   opacity: style.wideMenuOpacity,
@@ -354,7 +465,7 @@ export default class App extends Component {
                   height: style.menuHeight,
                   width: 40,
                   borderBottomLeftRadius: 3,
-                  borderBottomRightRadius: 3,
+                  borderBottomRightRadius: isFirstVisit ? 0 : 3,
                   zIndex: 10,
                   display: "flex",
                   flexDirection: "column",

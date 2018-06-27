@@ -34,7 +34,7 @@ export default class Link extends Component {
           <div
             style={{
               fontSize: 16,
-              color: "rgba(0, 0, 0, 0.9)",
+              // color: "rgba(0, 0, 0, 0.9)",
               textDecoration: hover ? "underline" : "none",
               padding: "0px 0px 3px 0px"
             }}
@@ -44,8 +44,8 @@ export default class Link extends Component {
         </div>
         {hideSource ? null : (
           <div
+            className={"source"}
             style={{
-              color: "rgba(0,0,0,0.6)",
               textAlign: "left",
               fontSize: 12
             }}

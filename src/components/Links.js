@@ -93,12 +93,13 @@ export default class Links extends Component {
 
     const cleanSearch = search
       .toLowerCase()
-      .replace(/[\.,-\/#!$%\^&\*;:{}=\-_`~()"']/g, "");
+      .replace(/[,\/#!$%\^&\*;:{}=_`~()]/g, "");
+
     const filteredLinks = links.filter(link => {
       let cleanTitle = link.text
         .toLowerCase()
-        .replace(/[\.,-\/#!$%\^&\*;:{}=\-_`~()"']/g, "");
-      return cleanTitle.includes(search);
+        .replace(/[,\/#!$%\^&\*;:{}=_`~()]/g, "");
+      return cleanTitle.includes(cleanSearch);
     });
 
     if (!this.state.gotLinks) {
@@ -112,7 +113,7 @@ export default class Links extends Component {
             justifyContent: "center"
           }}
         >
-          <Loader type="Oval" color="#00BFFF" height="100" width="100" />
+          <Loader type="Oval" color="#59CFA6" height="100" width="100" />
         </div>
       );
     } else {
@@ -138,8 +139,8 @@ export default class Links extends Component {
               style={{
                 display: "flex",
                 flexWrap: "wrap",
-                maxWidth: 400,
-                justifyContent: "flex-end"
+                justifyContent: "flex-end",
+                paddingLeft: 20
               }}
             >
               {this.state.batch
@@ -156,9 +157,11 @@ export default class Links extends Component {
                           color: "rgba(255,255,255,0.95)",
                           cursor: "pointer"
                         }}
-                        onClick={() => this.handleSearch(tag.toLowerCase())}
+                        onClick={() =>
+                          this.handleSearch(tag.term.toLowerCase())
+                        }
                       >
-                        {tag}
+                        {tag.term}
                       </div>
                     );
                   })
@@ -217,14 +220,14 @@ export default class Links extends Component {
                       : "rgba(51, 55, 70, 0)",
                   cursor: "pointer"
                 }}
-                onClick={() => this.setState({ search: "" })}
+                onClick={() => this.handleSearch("")}
               />
             </div>
           </div>
 
           <Motion
             defaultStyle={{ pulseOpacity: 0 }}
-            style={{ pulseOpacity: spring(this.state.pulse ? 0.2 : 0) }}
+            style={{ pulseOpacity: spring(this.state.pulse ? 0.5 : 0) }}
           >
             {style => (
               <div
