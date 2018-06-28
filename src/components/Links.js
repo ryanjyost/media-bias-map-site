@@ -152,23 +152,14 @@ export default class Links extends Component {
               {this.state.batch
                 ? this.state.batch.tags.map((tag, i) => {
                     return (
-                      <div
+                      <span
                         key={i}
-                        style={{
-                          fontSize: 18,
-                          margin: 3,
-                          padding: "4px 9px",
-                          borderRadius: 3,
-                          backgroundColor: "rgb(51, 55, 70, 1)",
-                          color: "rgba(255,255,255,0.95)",
-                          cursor: "pointer"
-                        }}
                         onClick={() =>
                           this.handleSearch(tag.term.toLowerCase())
                         }
                       >
                         {tag.term}
-                      </div>
+                      </span>
                     );
                   })
                 : null}
