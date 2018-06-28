@@ -159,8 +159,8 @@ export default class Links extends Component {
                           margin: 3,
                           padding: "4px 9px",
                           borderRadius: 3,
-                          // backgroundColor: "rgb(51, 55, 70, 1)",
-                          // color: "rgba(255,255,255,0.95)",
+                          backgroundColor: "rgba(51, 55, 70, 1)",
+                          color: "rgba(255,255,255,0.95)",
                           cursor: "pointer"
                         }}
                         onClick={() =>

@@ -506,7 +506,7 @@ export default class App extends Component {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    flex: 0.35,
+                    flex: 0.5,
                     fontSize: 18,
                     zIndex: 20,
                     color: showMenuText
@@ -541,7 +541,7 @@ export default class App extends Component {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    flex: 0.35,
+                    flex: 0.5,
                     borderBottomLeftRadius: 3,
                     borderBottomRightRadius: 3,
                     color: showMenuText
@@ -695,6 +695,38 @@ export default class App extends Component {
             )}
           </Motion>
         )}
+
+        {/* Last updated */}
+        <Motion
+          defaultStyle={{ width: 0, opacity: 0 }}
+          style={{
+            width: spring(isMenuOpen ? 80 : 0),
+            opacity: spring(showMenuText ? 1 : 0)
+          }}
+        >
+          {style => (
+            <div
+              style={{
+                height: 50,
+                width: style.width,
+                zIndex: 10,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "stretch",
+                justifyContent: "center",
+                boxShadow: "8px 11px 28px -12px rgba(0,0,0,1)",
+                cursor: "pointer",
+                position: "absolute",
+                opacity: style.opacity,
+                bottom: "20px",
+                right: "20px",
+                backgroundColor: "rgb(51, 55, 70)"
+              }}
+            >
+              21 min ago
+            </div>
+          )}
+        </Motion>
 
         {!linksView ? (
           <div
