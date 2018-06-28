@@ -506,7 +506,7 @@ export default class App extends Component {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    flex: 0.5,
+                    flex: 0.35,
                     fontSize: 18,
                     zIndex: 20,
                     color: showMenuText
@@ -541,7 +541,7 @@ export default class App extends Component {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    flex: 0.5,
+                    flex: 0.35,
                     borderBottomLeftRadius: 3,
                     borderBottomRightRadius: 3,
                     color: showMenuText
