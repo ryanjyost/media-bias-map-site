@@ -8,6 +8,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "lodash": "^4.17.10",
+    "moment": "^2.22.2",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-dragscroll": "^2.0.1",

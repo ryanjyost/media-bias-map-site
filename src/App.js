@@ -698,32 +698,44 @@ export default class App extends Component {
 
         {/* Last updated */}
         <Motion
-          defaultStyle={{ width: 0, opacity: 0 }}
+          defaultStyle={{ width: 0, textOpacity: 0, divOpacity: 0 }}
           style={{
-            width: spring(isMenuOpen ? 80 : 0),
-            opacity: spring(showMenuText ? 1 : 0)
+            width: spring(isMenuOpen ? 100 : 0),
+            divOpacity: spring(isMenuOpen ? 1 : 0),
+            textOpacity: spring(showMenuText ? 1 : 0)
           }}
         >
           {style => (
             <div
               style={{
-                height: 50,
-                width: style.width,
+                height: 30,
+                width: 100,
                 zIndex: 10,
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "stretch",
+                alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "8px 11px 28px -12px rgba(0,0,0,1)",
+                boxShadow: "4px 5px 14px -6px rgba(0,0,0,0.5)",
                 cursor: "pointer",
-                position: "absolute",
-                opacity: style.opacity,
+                position: "fixed",
                 bottom: "20px",
                 right: "20px",
-                backgroundColor: "rgb(51, 55, 70)"
+                fontSize: 12,
+                backgroundColor: "#f2f2f2",
+                borderRadius: 50,
+                border: "1px solid #f2f2f2",
+                opacity: style.divOpacity
               }}
             >
-              21 min ago
+              <div
+                style={{
+                  opacity: style.textOpacity,
+                  color: "rgba(0,0,0,0.3)"
+                }}
+              >
+                <i className="far fa-clock" style={{ marginRight: 5 }} />21 min
+                ago
+              </div>
             </div>
           )}
         </Motion>
