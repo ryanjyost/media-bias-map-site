@@ -5,6 +5,7 @@ import { Motion, spring } from "react-motion";
 import shuffle from "shuffle-array";
 import Links from "./components/Links";
 import SimpleStorage from "react-simple-storage";
+import moment from "moment";
 
 export default class App extends Component {
   constructor(props) {
@@ -46,8 +47,8 @@ export default class App extends Component {
         //let results = response.body.results;
         // console.log("hey", response.data.records);
         const records = response.data.records;
-        const random = shuffle(records, { copy: true });
-        this.setState({ records: random });
+        const randomOrder = shuffle(records, { copy: true });
+        this.setState({ records: randomOrder });
       })
       .catch(error => {
         console.log("ERROR", error);
@@ -201,6 +202,27 @@ export default class App extends Component {
 
     sitesWide = Math.max(Math.floor(screenWidth / imageWidth), 6);
     imageContainerWidth = (imageWidth + siteMargin * 2) * sitesWide;
+
+    let updatedTime = null;
+    if (records) {
+      try {
+        updatedTime = moment(records[0].batch);
+      } catch (e) {
+        updatedTime = null;
+      }
+    }
+
+    let timeAgo = null;
+    if (updatedTime) {
+      timeAgo = Math.abs(updatedTime.diff(moment(), "minutes"));
+      if (timeAgo < 60) {
+        timeAgo = `${timeAgo} min`;
+      } else if (timeAgo < 76) {
+        timeAgo = `1 hour`;
+      } else {
+        timeAgo = `> 1 hour`;
+      }
+    }
 
     return (
       <div>
@@ -700,9 +722,9 @@ export default class App extends Component {
         <Motion
           defaultStyle={{ width: 0, textOpacity: 0, divOpacity: 0 }}
           style={{
-            width: spring(isMenuOpen ? 100 : 0),
-            divOpacity: spring(isMenuOpen ? 1 : 0),
-            textOpacity: spring(showMenuText ? 1 : 0)
+            width: spring(isMenuOpen && timeAgo ? 100 : 0),
+            divOpacity: spring(isMenuOpen && timeAgo ? 1 : 0),
+            textOpacity: spring(showMenuText && timeAgo ? 1 : 0)
           }}
         >
           {style => (
@@ -733,8 +755,8 @@ export default class App extends Component {
                   color: "rgba(0,0,0,0.3)"
                 }}
               >
-                <i className="far fa-clock" style={{ marginRight: 5 }} />21 min
-                ago
+                <i className="far fa-clock" style={{ marginRight: 5 }} />
+                {`${timeAgo} ago`}
               </div>
             </div>
           )}
