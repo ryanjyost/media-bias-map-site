@@ -60,7 +60,7 @@ export default class Site extends Component {
                   display: loaded ? "" : "none"
                 }}
                 draggable="false"
-                src={record.image.url}
+                src={record.image.secure_url}
                 onLoad={() => this.setState({ loaded: true })}
               />
               <a

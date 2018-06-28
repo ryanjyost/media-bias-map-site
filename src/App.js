@@ -36,12 +36,70 @@ export default class App extends Component {
     };
   }
 
+  componentDidMount() {
+    //get recent posts
+    axios
+      .get(`https://media-bias-map.herokuapp.com/records/get_recent`, {
+        Accept: "application/json"
+      })
+      .then(response => {
+        //let results = response.body.results;
+        // console.log("hey", response.data.records);
+        const records = response.data.records;
+        const random = shuffle(records, { copy: true });
+        this.setState({ records: random });
+      })
+      .catch(error => {
+        console.log("ERROR", error);
+      });
+
+    this.updateDimensions();
+
+    window.addEventListener(
+      "resize",
+      this.throttle(this.updateDimensions.bind(this), 1000)
+    );
+
+    window.addEventListener(
+      "scroll",
+      this.throttle(this.handleScroll.bind(this), 200)
+    );
+
+    document.addEventListener("keydown", this.handleKeyZoom.bind(this), false);
+
+    this.handleShowMenu();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions.bind(this));
+  }
+
   updateDimensions() {
     let screenWidth = typeof window !== "undefined" ? window.innerWidth : 0;
     let screenHeight = typeof window !== "undefined" ? window.innerHeight : 0;
     // let update_height = Math.round(update_width)
 
     this.setState({ screenWidth: screenWidth, screenHeight: screenHeight });
+  }
+
+  handleKeyZoom(e) {
+    if (!this.state.linksView) {
+      if (e.keyCode === 187 && e.metaKey) {
+        let imageSizeFactor = this.state.imageSizeFactor;
+        e.preventDefault();
+        this.setState({
+          imageSizeFactor:
+            imageSizeFactor > 1 ? imageSizeFactor - 0.5 : imageSizeFactor
+        });
+      } else if (e.keyCode === 189 && e.metaKey) {
+        let imageSizeFactor = this.state.imageSizeFactor;
+        e.preventDefault();
+        this.setState({
+          imageSizeFactor:
+            imageSizeFactor < 5 ? imageSizeFactor + 0.5 : imageSizeFactor
+        });
+      }
+    }
   }
 
   handleScroll(e) {
@@ -75,41 +133,6 @@ export default class App extends Component {
         }, limit - (Date.now() - lastRan));
       }
     };
-  }
-
-  componentDidMount() {
-    //get recent posts
-    axios
-      .get(`https://media-bias-map.herokuapp.com/records/get_recent`, {
-        Accept: "application/json"
-      })
-      .then(response => {
-        //let results = response.body.results;
-        // console.log("hey", response.data.records);
-        const records = response.data.records;
-        const random = shuffle(records, { copy: true });
-        this.setState({ records: random });
-      })
-      .catch(error => {
-        console.log("ERROR", error);
-      });
-
-    this.updateDimensions();
-    window.addEventListener(
-      "resize",
-      this.throttle(this.updateDimensions.bind(this), 1000)
-    );
-
-    window.addEventListener(
-      "scroll",
-      this.throttle(this.handleScroll.bind(this), 200)
-    );
-
-    this.handleShowMenu();
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.updateDimensions.bind(this));
   }
 
   handleMouseDown(e) {
@@ -190,7 +213,7 @@ export default class App extends Component {
             }}
             style={{
               height: spring(isFirstVisit ? 118 : 0),
-              width: spring(isFirstVisit ? 200 : 0),
+              width: spring(isFirstVisit ? 198 : 0),
               opacity: spring(isFirstVisit ? 1 : 0)
             }}
           >
@@ -265,7 +288,6 @@ export default class App extends Component {
             "records",
             "screenWidth",
             "screenHeight",
-            "imageSizeFactor",
             "plusHovered",
             "plusClicked",
             "minusHovered",
@@ -397,7 +419,7 @@ export default class App extends Component {
                   alignItems: "stretch",
                   justifyContent: "center",
                   borderTopRightRadius: 3,
-                  borderBottomRightRadius: 3,
+                  borderBottomRightRadius: isFirstVisit ? 0 : 3,
                   boxShadow: isFirstVisit
                     ? ""
                     : "8px 11px 28px -12px rgba(0,0,0,1)",
@@ -677,7 +699,11 @@ export default class App extends Component {
         {!linksView ? (
           <div
             style={{
-              width: isWideView ? imageContainerWidth + 10 : screenWidth,
+              width: isWideView
+                ? imageContainerWidth + 10
+                : screenWidth < imageWidth
+                  ? imageWidth
+                  : screenWidth,
               margin: "auto",
               display: "flex",
               flexWrap: "wrap",
