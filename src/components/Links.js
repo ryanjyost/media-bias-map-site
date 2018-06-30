@@ -20,7 +20,7 @@ export default class Links extends Component {
 
   componentDidMount() {
     axios
-      .get(`https://media-bias-map.herokuapp.com/records/get_recent_links`, {
+      .get(`https://birds-eye-news-api.herokuapp.com/get_recent`, {
         Accept: "application/json"
       })
       .then(response => {

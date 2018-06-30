@@ -40,7 +40,7 @@ export default class App extends Component {
   componentDidMount() {
     //get recent posts
     axios
-      .get(`https://media-bias-map.herokuapp.com/records/get_recent`, {
+      .get(`https://birds-eye-news-api.herokuapp.com/get_recent`, {
         Accept: "application/json"
       })
       .then(response => {
@@ -706,7 +706,7 @@ export default class App extends Component {
                   height: 40,
                   width: 40,
                   borderRadius: 3,
-                  backgroundColor: "rgb(51, 55, 70, 1)",
+                  backgroundColor: "rgba(51, 55, 70, 1)",
                   color: "rgba(255,255,255,1)",
                   cursor: "pointer"
                 }}
