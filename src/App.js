@@ -763,61 +763,59 @@ export default class App extends Component {
           )}
         </Motion>
 
-        {!linksView ? (
-          <div
-            style={{
-              width: isWideView
-                ? imageContainerWidth + 10
-                : screenWidth < imageWidth
-                  ? imageWidth
-                  : screenWidth,
-              margin: "auto",
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center"
-            }}
-            onMouseDown={e => this.handleMouseDown(e)}
-            onMouseMove={e => {
-              if (isMouseDown) {
-                this.handleMouseMove(e);
-              }
-            }}
-            onMouseUp={e => this.handleMouseUp(e)}
-            onDoubleClick={() => {
-              this.setState({
-                imageSizeFactor:
-                  imageSizeFactor > 1 ? imageSizeFactor - 0.5 : imageSizeFactor
-              });
-            }}
-            className={"grabbable"}
-            id={"main"}
-          >
-            {this.state.records.map((record, i) => {
-              return (
-                <Site
-                  key={i}
-                  index={i}
-                  record={record}
-                  siteMargin={siteMargin}
-                  imageHeight={imageHeight}
-                  imageWidth={imageWidth}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <div
-            style={{
-              width: "100%",
-              margin: "auto",
-              display: "flex",
-              flexWrap: "wrap",
-              backgroundColor: "#fcfcfc"
-            }}
-          >
-            <Links records={records} hideSources={hideSources} />
-          </div>
-        )}
+        <div
+          style={{
+            width: isWideView
+              ? imageContainerWidth + 10
+              : screenWidth < imageWidth
+                ? imageWidth
+                : screenWidth,
+            margin: "auto",
+            display: !linksView ? "flex" : "none",
+            flexWrap: "wrap",
+            justifyContent: "center"
+          }}
+          onMouseDown={e => this.handleMouseDown(e)}
+          onMouseMove={e => {
+            if (isMouseDown) {
+              this.handleMouseMove(e);
+            }
+          }}
+          onMouseUp={e => this.handleMouseUp(e)}
+          onDoubleClick={() => {
+            this.setState({
+              imageSizeFactor:
+                imageSizeFactor > 1 ? imageSizeFactor - 0.5 : imageSizeFactor
+            });
+          }}
+          className={"grabbable"}
+          id={"main"}
+        >
+          {this.state.records.map((record, i) => {
+            return (
+              <Site
+                key={i}
+                index={i}
+                record={record}
+                siteMargin={siteMargin}
+                imageHeight={imageHeight}
+                imageWidth={imageWidth}
+              />
+            );
+          })}
+        </div>
+
+        <div
+          style={{
+            width: "100%",
+            margin: "auto",
+            display: linksView ? "flex" : "none",
+            flexWrap: "wrap",
+            backgroundColor: "#fcfcfc"
+          }}
+        >
+          <Links records={records} hideSources={hideSources} />
+        </div>
       </div>
     );
   }

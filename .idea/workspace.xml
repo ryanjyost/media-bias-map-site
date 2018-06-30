@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="04452628-8447-4f30-a4a7-c5d16cc870b4" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Links.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Links.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -18,7 +16,7 @@
       <file leaf-file-name="Site.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/Site.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1640">
+            <state relative-caret-position="721">
               <caret line="82" column="35" selection-start-line="82" selection-start-column="35" selection-end-line="82" selection-end-column="35" />
             </state>
           </provider>
@@ -101,12 +99,14 @@
       <file leaf-file-name="App.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="40" column="22" lean-forward="true" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
+            <state relative-caret-position="122">
+              <caret line="809" column="28" lean-forward="true" selection-start-line="809" selection-start-column="28" selection-end-line="809" selection-end-column="28" />
               <folding>
                 <element signature="e#0#41#0" />
                 <element signature="e#377#903#0" />
                 <element signature="e#414#898#0" />
+                <element signature="e#927#1806#0" />
+                <element signature="e#1032#1076#0" />
                 <element signature="e#1102#1370#0" />
                 <element signature="e#1112#1150#0" />
                 <element signature="e#1394#1440#0" />
@@ -207,6 +207,22 @@
                 <element signature="e#20987#22307#0" />
                 <element signature="e#21067#21615#0" />
                 <element signature="e#21684#21884#0" />
+                <element signature="e#22388#23446#0" />
+                <element signature="e#22571#23411#0" />
+                <element signature="e#22599#23224#0" />
+                <element signature="e#23468#23486#0" />
+                <element signature="e#23496#24873#0" />
+                <element signature="e#23590#23791#0" />
+                <element signature="e#23837#24842#0" />
+                <element signature="e#23863#24510#0" />
+                <element signature="e#24540#24823#0" />
+                <element signature="e#24568#24676#0" />
+                <element signature="e#25349#25454#0" />
+                <element signature="e#25382#25440#0" />
+                <element signature="e#25540#25716#0" />
+                <element signature="e#25570#25700#0" />
+                <element signature="e#25841#26153#0" />
+                <element signature="e#25882#26122#0" />
               </folding>
             </state>
           </provider>
@@ -367,12 +383,12 @@
       <workItem from="1530151015398" duration="3883000" />
       <workItem from="1530158973066" duration="1491000" />
       <workItem from="1530323331825" duration="1594000" />
-      <workItem from="1530325776461" duration="4157000" />
+      <workItem from="1530325776461" duration="4400000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="119502000" />
+    <option name="totallyTimeSpent" value="119745000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="777" extended-state="0" />
@@ -384,8 +400,8 @@
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.3298193" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.3298193" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.3253012" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27948305" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.3253012" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27948305" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -825,13 +841,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/Site.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1640">
-          <caret line="82" column="35" selection-start-line="82" selection-start-column="35" selection-end-line="82" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/components/Link.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="740">
@@ -893,14 +902,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Site.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="721">
+          <caret line="82" column="35" selection-start-line="82" selection-start-column="35" selection-end-line="82" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="40" column="22" lean-forward="true" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
+        <state relative-caret-position="122">
+          <caret line="809" column="28" lean-forward="true" selection-start-line="809" selection-start-column="28" selection-end-line="809" selection-end-column="28" />
           <folding>
             <element signature="e#0#41#0" />
             <element signature="e#377#903#0" />
             <element signature="e#414#898#0" />
+            <element signature="e#927#1806#0" />
+            <element signature="e#1032#1076#0" />
             <element signature="e#1102#1370#0" />
             <element signature="e#1112#1150#0" />
             <element signature="e#1394#1440#0" />
@@ -1001,6 +1019,22 @@
             <element signature="e#20987#22307#0" />
             <element signature="e#21067#21615#0" />
             <element signature="e#21684#21884#0" />
+            <element signature="e#22388#23446#0" />
+            <element signature="e#22571#23411#0" />
+            <element signature="e#22599#23224#0" />
+            <element signature="e#23468#23486#0" />
+            <element signature="e#23496#24873#0" />
+            <element signature="e#23590#23791#0" />
+            <element signature="e#23837#24842#0" />
+            <element signature="e#23863#24510#0" />
+            <element signature="e#24540#24823#0" />
+            <element signature="e#24568#24676#0" />
+            <element signature="e#25349#25454#0" />
+            <element signature="e#25382#25440#0" />
+            <element signature="e#25540#25716#0" />
+            <element signature="e#25570#25700#0" />
+            <element signature="e#25841#26153#0" />
+            <element signature="e#25882#26122#0" />
           </folding>
         </state>
       </provider>
