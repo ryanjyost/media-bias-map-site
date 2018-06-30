@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Motion, spring } from "react-motion";
+import detectIt from "detect-it";
 
 export default class Site extends Component {
   constructor(props) {
@@ -14,6 +15,8 @@ export default class Site extends Component {
   render() {
     const { siteMargin, imageHeight, imageWidth, record, index } = this.props;
     const { hover, hoverLink, loaded } = this.state;
+
+    const isTouch = detectIt.hasTouch === true;
 
     return (
       <Motion
@@ -70,7 +73,7 @@ export default class Site extends Component {
                   width: 40,
                   height: 40,
                   backgroundColor: "#fff",
-                  opacity: hoverLink ? 1 : hover ? 0.8 : 0,
+                  opacity: isTouch ? 0.9 : hoverLink ? 1 : hover ? 0.8 : 0,
                   position: "absolute",
                   top: 10,
                   right: 10,

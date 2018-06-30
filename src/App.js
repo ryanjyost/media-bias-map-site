@@ -206,7 +206,7 @@ export default class App extends Component {
     let updatedTime = null;
     if (records) {
       try {
-        updatedTime = moment(records[0].batch);
+        updatedTime = moment(records[30].uploaded_at);
       } catch (e) {
         updatedTime = null;
       }
@@ -215,6 +215,7 @@ export default class App extends Component {
     let timeAgo = null;
     if (updatedTime) {
       timeAgo = Math.abs(updatedTime.diff(moment(), "minutes"));
+      console.log(timeAgo);
       if (timeAgo < 60) {
         timeAgo = `${timeAgo} min`;
       } else if (timeAgo < 76) {
