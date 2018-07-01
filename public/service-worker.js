@@ -18,3 +18,20 @@ self.addEventListener("fetch", function(event) {
     })
   );
 });
+
+// Delete old caches that are not our current one!
+self.addEventListener("activate", event => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(keyList =>
+      Promise.all(
+        keyList.map(key => {
+          if (!cacheWhitelist.includes(key)) {
+            console.log("Deleting cache: " + key);
+            return caches.delete(key);
+          }
+        })
+      )
+    )
+  );
+});
