@@ -63,7 +63,7 @@ export default class Site extends Component {
                   display: loaded ? "" : "none"
                 }}
                 draggable="false"
-                src={record.image.secure_url}
+                src={`https://d1dzf0mjm4jp11.cloudfront.net/${record.image}`}
                 onLoad={() => this.setState({ loaded: true })}
               />
               <a

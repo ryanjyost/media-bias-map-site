@@ -10,51 +10,10 @@ export default class Links extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      links: [],
       search: "",
       filterActive: false,
-      pulse: false,
-      gotLinks: false
+      pulse: false
     };
-  }
-
-  componentDidMount() {
-    axios
-      .get(`https://birds-eye-news-api.herokuapp.com/get_recent`, {
-        Accept: "application/json"
-      })
-      .then(response => {
-        //let results = response.body.results;
-        // console.log("hey", response.data.records);
-        const records = response.data.records;
-
-        let allLinks = [];
-        for (let record of records) {
-          let links = record.content.links
-            .filter(link => {
-              return link.text.length > 5;
-            })
-            .map(link => {
-              return { ...link, site: record.site };
-            });
-          allLinks.push(links);
-        }
-
-        const flattened = allLinks.reduce(function(accumulator, currentValue) {
-          return accumulator.concat(currentValue);
-        }, []);
-
-        const shuffled = shuffle(flattened, { copy: true });
-
-        this.setState({
-          links: shuffled,
-          batch: response.data.batch,
-          gotLinks: true
-        });
-      })
-      .catch(error => {
-        console.log("ERROR", error);
-      });
   }
 
   throttle(func, limit) {
@@ -89,7 +48,8 @@ export default class Links extends Component {
   }
 
   render() {
-    const { filterActive, links, search } = this.state;
+    const { filterActive, search } = this.state;
+    const { links } = this.props;
 
     const cleanSearch = search
       .toLowerCase()
@@ -108,7 +68,7 @@ export default class Links extends Component {
       );
     });
 
-    if (!this.state.gotLinks) {
+    if (!this.props.gotLinks) {
       return (
         <div
           style={{
@@ -149,8 +109,8 @@ export default class Links extends Component {
                 paddingLeft: 20
               }}
             >
-              {this.state.batch
-                ? this.state.batch.tags.map((tag, i) => {
+              {this.props.batch
+                ? this.props.batch.tags.map((tag, i) => {
                     return (
                       <span
                         key={i}

@@ -19,7 +19,9 @@ export default class App extends Component {
       // nonsaved
       isMenuOpen: false,
       showMenuText: false,
+
       records: [],
+      batch: null,
       screenWidth: 0,
       screenHeight: 0,
       imageSizeFactor: 5,
@@ -33,7 +35,11 @@ export default class App extends Component {
       // drag scroll
       isMouseDown: false,
       startX: 0,
-      startY: 0
+      startY: 0,
+
+      //links
+      gotLinks: false,
+      links: []
     };
   }
 
@@ -48,7 +54,30 @@ export default class App extends Component {
         // console.log("hey", response.data.records);
         const records = response.data.records;
         const randomOrder = shuffle(records, { copy: true });
-        this.setState({ records: randomOrder });
+        this.setState({ records: randomOrder, batch: response.data.batch });
+
+        let allLinks = [];
+        for (let record of records) {
+          let links = record.content.links
+            .filter(link => {
+              return link.text.length > 5;
+            })
+            .map(link => {
+              return { ...link, site: record.site };
+            });
+          allLinks.push(links);
+        }
+
+        const flattened = allLinks.reduce(function(accumulator, currentValue) {
+          return accumulator.concat(currentValue);
+        }, []);
+
+        const shuffled = shuffle(flattened, { copy: true });
+
+        this.setState({
+          links: shuffled,
+          gotLinks: true
+        });
       })
       .catch(error => {
         console.log("ERROR", error);
@@ -152,8 +181,12 @@ export default class App extends Component {
     this.setState({ isMouseDown: false });
   }
 
-  scrollTop() {
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  scrollTop(isSmooth = true) {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: isSmooth ? "smooth" : "auto"
+    });
   }
 
   handleShowMenu() {
@@ -206,7 +239,7 @@ export default class App extends Component {
     let updatedTime = null;
     if (records) {
       try {
-        updatedTime = moment(records[30].uploaded_at);
+        updatedTime = moment(records[30].created_at);
       } catch (e) {
         updatedTime = null;
       }
@@ -215,7 +248,6 @@ export default class App extends Component {
     let timeAgo = null;
     if (updatedTime) {
       timeAgo = Math.abs(updatedTime.diff(moment(), "minutes"));
-      console.log(timeAgo);
       if (timeAgo < 60) {
         timeAgo = `${timeAgo} min`;
       } else if (timeAgo < 76) {
@@ -237,7 +269,7 @@ export default class App extends Component {
             style={{
               height: spring(isFirstVisit ? 118 : 0),
               width: spring(isFirstVisit ? 198 : 0),
-              opacity: spring(isFirstVisit ? 1 : 0)
+              opacity: spring(isFirstVisit && showMenuText ? 1 : 0)
             }}
           >
             {style => (
@@ -472,7 +504,10 @@ export default class App extends Component {
                       : "3px solid rgb(51, 55, 70)",
                     opacity: style.wideMenuOpacity
                   }}
-                  onClick={() => this.setState({ linksView: false })}
+                  onClick={() => {
+                    this.scrollTop(false);
+                    this.setState({ linksView: false });
+                  }}
                 >
                   {"Front \n Pages"}
                 </a>
@@ -497,7 +532,10 @@ export default class App extends Component {
                       : "3px solid rgb(51, 55, 70)",
                     opacity: style.wideMenuOpacity
                   }}
-                  onClick={() => this.setState({ linksView: true })}
+                  onClick={() => {
+                    this.scrollTop(false);
+                    this.setState({ linksView: true });
+                  }}
                 >
                   {"Headlines"}
                 </a>
@@ -814,7 +852,13 @@ export default class App extends Component {
             backgroundColor: "#fcfcfc"
           }}
         >
-          <Links records={records} hideSources={hideSources} />
+          <Links
+            records={records}
+            batch={this.state.batch}
+            hideSources={hideSources}
+            links={this.state.links}
+            gotLinks={this.state.gotLinks}
+          />
         </div>
       </div>
     );
