@@ -13,6 +13,7 @@ export default class Link extends Component {
     return (
       <a
         key={i}
+        rel="noreferrer"
         target={"_blank"}
         className={"articleLink"}
         href={link.href}
