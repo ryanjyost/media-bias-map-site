@@ -44,12 +44,44 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+    <style type="text/css">
+      #body {
+        margin: 0px;
+      }
+
+      #div {
+        height: 100vh;
+        width: 100%;
+        background-color: rgb(89, 207, 166);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        font-family:sans-serif;
+      }
+
+      #text {
+        font-weight: 100;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 30px;
+      }
+
+    </style>
   </head>
-  <body>
+  <body id="body">
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div id="div">
+        <h4 id="text">Loading the news...</h4>
+        <img
+          src="https://d1dzf0mjm4jp11.cloudfront.net/apple-icon-180x180.png"
+          height="180px"
+          width="180px"
+        />
+      </div>
+    </div>
     <script>
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js')
@@ -62,6 +94,8 @@
         });
     }
     </script>
+
+
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

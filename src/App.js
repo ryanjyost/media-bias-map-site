@@ -6,6 +6,7 @@ import shuffle from "shuffle-array";
 import Links from "./components/Links";
 import SimpleStorage from "react-simple-storage";
 import moment from "moment";
+import Loader from "react-loader-spinner";
 
 export default class App extends Component {
   constructor(props) {
@@ -15,7 +16,8 @@ export default class App extends Component {
       hideSources: false,
       isWideView: true,
       isFirstVisit: true,
-      isLoading: true,
+      splashLoaded: false,
+      showLoadScreen: true,
 
       // nonsaved
       isMenuOpen: false,
@@ -77,7 +79,8 @@ export default class App extends Component {
 
         this.setState({
           links: shuffled,
-          gotLinks: true
+          gotLinks: true,
+          showLoadScreen: false
         });
       })
       .catch(error => {
@@ -97,7 +100,6 @@ export default class App extends Component {
     );
 
     document.addEventListener("keydown", this.handleKeyZoom.bind(this), false);
-
     this.handleShowMenu();
   }
 
@@ -191,19 +193,20 @@ export default class App extends Component {
   }
 
   handleShowMenu() {
-    if (this.state.isMenuOpen) {
-      this.setState({ isMenuOpen: false, showMenuText: false });
-      if (this.state.isFirstVisit) {
-        this.setState({ isFirstVisit: false });
-      }
+    if (this.state.isFirstVisit) {
+      this.setState({ isFirstVisit: false });
     } else {
-      this.setState({ isMenuOpen: true });
-      setTimeout(
-        function() {
-          this.setState({ showMenuText: true });
-        }.bind(this),
-        300
-      );
+      if (this.state.isMenuOpen) {
+        this.setState({ isMenuOpen: false, showMenuText: false });
+      } else {
+        this.setState({ isMenuOpen: true });
+        setTimeout(
+          function() {
+            this.setState({ showMenuText: true });
+          }.bind(this),
+          300
+        );
+      }
     }
   }
 
@@ -225,7 +228,8 @@ export default class App extends Component {
       showScrollTop,
       hideSources,
       isFirstVisit,
-      isLoading
+      showLoadScreen,
+      splashLoaded
     } = this.state;
 
     let siteMargin = 5,
@@ -259,19 +263,29 @@ export default class App extends Component {
       }
     }
 
-    if (isLoading) {
+    if (showLoadScreen && false) {
       return (
         <div
           style={{
             height: "100vh",
             width: "100%",
-            backgroundColor: "#59CFA6",
+            // backgroundColor: "#59CFA6",
             display: "flex",
             alignItems: "center",
             justifyContent: "center"
           }}
         >
-          <img src={"/apple-icon-180x180.png"} height={200} width={200} />
+          <div
+            style={{
+              height: "100vh",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            <Loader type="Oval" color="#333746" height="100" width="100" />
+          </div>
         </div>
       );
     } else {
@@ -378,18 +392,18 @@ export default class App extends Component {
           <Motion
             defaultStyle={{
               topBarRotation: 0,
-              topBarTop: 0,
+              topBarTop: -6,
               wideMenuWidth: 0,
               menuHeight: 0,
               wideMenuPaddingRight: 0,
               wideMenuPaddingLeft: 0,
               wideMenuOpacity: 0,
               borderRadius: 3,
-              buttonOpacity: 0
+              buttonOpacity: 1
             }}
             style={{
               topBarRotation: spring(isMenuOpen ? 45 : 0),
-              topBarTop: spring(isMenuOpen ? 0 : -6),
+              topBarTop: spring(isFirstVisit ? -6 : isMenuOpen ? 0 : -6),
               wideMenuWidth: spring(isMenuOpen ? 200 : 0),
               menuHeight: spring(isMenuOpen ? 120 : 0),
               wideMenuPaddingRight: spring(isMenuOpen ? 20 : 0),
@@ -821,47 +835,60 @@ export default class App extends Component {
             )}
           </Motion>
 
-          <div
+          <Motion
+            defaultStyle={{ grayscale: 0 }}
             style={{
-              width: isWideView
-                ? imageContainerWidth + 10
-                : screenWidth < imageWidth
-                  ? imageWidth
-                  : screenWidth,
-              margin: "auto",
-              display: !linksView ? "flex" : "none",
-              flexWrap: "wrap",
-              justifyContent: "center"
+              grayscale: spring(isMenuOpen ? 50 : 0)
             }}
-            onMouseDown={e => this.handleMouseDown(e)}
-            onMouseMove={e => {
-              if (isMouseDown) {
-                this.handleMouseMove(e);
-              }
-            }}
-            onMouseUp={e => this.handleMouseUp(e)}
-            onDoubleClick={() => {
-              this.setState({
-                imageSizeFactor:
-                  imageSizeFactor > 1 ? imageSizeFactor - 0.5 : imageSizeFactor
-              });
-            }}
-            className={"grabbable"}
-            id={"main"}
           >
-            {this.state.records.map((record, i) => {
-              return (
-                <Site
-                  key={i}
-                  index={i}
-                  record={record}
-                  siteMargin={siteMargin}
-                  imageHeight={imageHeight}
-                  imageWidth={imageWidth}
-                />
-              );
-            })}
-          </div>
+            {style => (
+              <div
+                style={{
+                  width: isWideView
+                    ? imageContainerWidth + 10
+                    : screenWidth < imageWidth
+                      ? imageWidth
+                      : screenWidth,
+                  margin: "auto",
+                  display: !linksView ? "flex" : "none",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  WebkitFilter: `grayscale(${style.grayscale}%)`,
+                  filter: `grayscale(${style.grayscale}%)`
+                }}
+                onMouseDown={e => this.handleMouseDown(e)}
+                onMouseMove={e => {
+                  if (isMouseDown) {
+                    this.handleMouseMove(e);
+                  }
+                }}
+                onMouseUp={e => this.handleMouseUp(e)}
+                onDoubleClick={() => {
+                  this.setState({
+                    imageSizeFactor:
+                      imageSizeFactor > 1
+                        ? imageSizeFactor - 0.5
+                        : imageSizeFactor
+                  });
+                }}
+                className={"grabbable"}
+                id={"main"}
+              >
+                {this.state.records.map((record, i) => {
+                  return (
+                    <Site
+                      key={i}
+                      index={i}
+                      record={record}
+                      siteMargin={siteMargin}
+                      imageHeight={imageHeight}
+                      imageWidth={imageWidth}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </Motion>
 
           <div
             style={{

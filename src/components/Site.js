@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Motion, spring } from "react-motion";
 import detectIt from "detect-it";
+import Loader from "react-loader-spinner";
 
 export default class Site extends Component {
   constructor(props) {
@@ -18,15 +19,36 @@ export default class Site extends Component {
 
     const isTouch = detectIt.hasTouch === true;
 
+    const Placeholder = () => {
+      return (
+        <div
+          style={{
+            height: imageHeight,
+            width: imageWidth,
+            backgroundColor: "#e5e5e5"
+          }}
+        >
+          <div
+            style={{
+              margin: "auto",
+              width: "50%",
+              backgroundColor: "#f2f2f2",
+              height: 20
+            }}
+          />
+        </div>
+      );
+    };
+
     return (
       <Motion
         defaultStyle={{
-          imageWidth: imageWidth,
-          linkPosition: -50
+          linkPosition: -50,
+          imageOpacity: 0
         }}
         style={{
-          imageWidth: spring(imageWidth),
-          linkPosition: spring(this.state.hover ? 10 : -50)
+          linkPosition: spring(this.state.hover ? 10 : -50),
+          imageOpacity: spring(loaded ? 1 : 0)
         }}
       >
         {style => {
@@ -35,32 +57,27 @@ export default class Site extends Component {
               key={index}
               style={{
                 margin: siteMargin - 1,
-                border: "1px solid #d8d8d8",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 height: imageHeight,
                 // width: style.imageWidth,
                 width: imageWidth,
-                backgroundColor: "#333",
+                backgroundColor: "#f2f2f2",
                 position: "relative"
+                // filter: `blur(${style.imageOpacity * 2}px)`,
+                // WebkitFilter: `blur(${style.imageOpacity * 2}px)`
               }}
               onMouseEnter={() => this.setState({ hover: true })}
               onMouseLeave={() => this.setState({ hover: false })}
             >
-              <div
-                style={{
-                  height: imageHeight,
-                  width: imageWidth,
-                  display: loaded ? "none" : "",
-                  backgroundColor: "transparent"
-                }}
-              />
+              {/*{!loaded ? <Placeholder /> : null}*/}
               <img
                 style={{
                   height: imageHeight,
                   width: imageWidth,
-                  display: loaded ? "" : "none"
+                  display: loaded ? "" : "none",
+                  opacity: style.imageOpacity
                 }}
                 draggable="false"
                 src={`https://d1dzf0mjm4jp11.cloudfront.net/${record.image}`}
@@ -73,7 +90,15 @@ export default class Site extends Component {
                   width: 40,
                   height: 40,
                   backgroundColor: "#fff",
-                  opacity: isTouch ? 0.9 : hoverLink ? 1 : hover ? 0.8 : 0,
+                  opacity: !loaded
+                    ? 0
+                    : isTouch
+                      ? 0.9
+                      : hoverLink
+                        ? 1
+                        : hover
+                          ? 0.8
+                          : 0,
                   position: "absolute",
                   top: 10,
                   right: 10,
