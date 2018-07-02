@@ -264,7 +264,7 @@ export default class App extends Component {
       }
     }
 
-    if (showError) {
+    if (showError && false) {
       return (
         <div id="root">
           <div id="div">
