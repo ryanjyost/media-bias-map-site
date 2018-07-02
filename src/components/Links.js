@@ -5,6 +5,7 @@ import axios from "axios";
 import _array from "lodash/array";
 import Link from "./Link";
 import Loader from "react-loader-spinner";
+import ReactGA from "react-ga";
 
 export default class Links extends Component {
   constructor(props) {
@@ -45,6 +46,17 @@ export default class Links extends Component {
       }.bind(this),
       50
     );
+
+    ReactGA.event({
+      category: "Input",
+      action: "Searched headlines",
+      value: text
+    });
+  }
+
+  initReactGA() {
+    ReactGA.initialize("UA-97014671-4");
+    ReactGA.pageview("/");
   }
 
   render() {

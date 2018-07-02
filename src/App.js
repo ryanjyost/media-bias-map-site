@@ -7,6 +7,7 @@ import Links from "./components/Links";
 import SimpleStorage from "react-simple-storage";
 import moment from "moment";
 import Loader from "react-loader-spinner";
+import ReactGA from "react-ga";
 
 export default class App extends Component {
   constructor(props) {
@@ -103,6 +104,14 @@ export default class App extends Component {
 
     document.addEventListener("keydown", this.handleKeyZoom.bind(this), false);
     this.handleShowMenu();
+
+    // google analystics
+    this.initReactGA();
+  }
+
+  initReactGA() {
+    ReactGA.initialize("UA-97014671-4");
+    ReactGA.pageview("/");
   }
 
   componentWillUnmount() {
