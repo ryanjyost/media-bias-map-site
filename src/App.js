@@ -260,7 +260,20 @@ export default class App extends Component {
     }
 
     if (isLoading) {
-      return <h1>hey</h1>;
+      return (
+        <div
+          style={{
+            height: "100vh",
+            width: "100%",
+            backgroundColor: "#59CFA6",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <img src={"/apple-icon-180x180.png"} height={200} width={200} />
+        </div>
+      );
     } else {
       return (
         <div>
