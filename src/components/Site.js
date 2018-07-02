@@ -85,6 +85,7 @@ export default class Site extends Component {
               />
               <a
                 href={record.site.url}
+                rel="noreferrer"
                 target={"_blank"}
                 style={{
                   width: 40,

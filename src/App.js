@@ -18,6 +18,7 @@ export default class App extends Component {
       isFirstVisit: true,
       splashLoaded: false,
       showLoadScreen: true,
+      showError: false,
 
       // nonsaved
       isMenuOpen: false,
@@ -85,6 +86,7 @@ export default class App extends Component {
       })
       .catch(error => {
         console.log("ERROR", error);
+        this.setState({ showError: true });
       });
 
     this.updateDimensions();
@@ -228,8 +230,7 @@ export default class App extends Component {
       showScrollTop,
       hideSources,
       isFirstVisit,
-      showLoadScreen,
-      splashLoaded
+      showError
     } = this.state;
 
     let siteMargin = 5,
@@ -263,28 +264,16 @@ export default class App extends Component {
       }
     }
 
-    if (showLoadScreen && false) {
+    if (showError) {
       return (
-        <div
-          style={{
-            height: "100vh",
-            width: "100%",
-            // backgroundColor: "#59CFA6",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-        >
-          <div
-            style={{
-              height: "100vh",
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            }}
-          >
-            <Loader type="Oval" color="#333746" height="100" width="100" />
+        <div id="root">
+          <div id="div">
+            <h4 id="text">Bummer! Something went wrong...</h4>
+            <img
+              src="https://d1dzf0mjm4jp11.cloudfront.net/apple-icon-180x180.png"
+              height="180px"
+              width="180px"
+            />
           </div>
         </div>
       );
