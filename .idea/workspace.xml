@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="04452628-8447-4f30-a4a7-c5d16cc870b4" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/public/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/public/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -63,11 +64,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="service-worker.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/public/service-worker.js">
+      <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="79">
-              <caret line="38" column="48" selection-start-line="38" selection-start-column="48" selection-end-line="38" selection-end-column="48" />
+            <state relative-caret-position="160">
+              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="registerServiceWorker.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/registerServiceWorker.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="283">
+              <caret line="18" column="2" lean-forward="true" selection-start-line="18" selection-start-column="2" selection-end-line="18" selection-end-column="2" />
             </state>
           </provider>
         </entry>
@@ -75,8 +85,8 @@
       <file leaf-file-name="package.json" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="10" column="27" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="27" />
+            <state relative-caret-position="140">
+              <caret line="7" column="19" lean-forward="true" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -233,16 +243,16 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="27" column="62" lean-forward="true" selection-start-line="27" selection-start-column="62" selection-end-line="27" selection-end-column="62" />
+            <state relative-caret-position="190">
+              <caret line="95" column="14" lean-forward="true" selection-start-line="95" selection-start-column="14" selection-end-line="95" selection-end-column="14" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="manifest.json" pinned="false" current-in-tab="true">
+      <file leaf-file-name="manifest.json" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/manifest.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="140">
+            <state relative-caret-position="-381">
               <caret line="7" column="11" lean-forward="true" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
             </state>
           </provider>
@@ -314,13 +324,13 @@
         <option value="$PROJECT_DIR$/manifest.json" />
         <option value="$PROJECT_DIR$/static.json" />
         <option value="$PROJECT_DIR$/src/components/Link.js" />
-        <option value="$PROJECT_DIR$/src/index.js" />
-        <option value="$PROJECT_DIR$/src/registerServiceWorker.js" />
         <option value="$PROJECT_DIR$/src/App.js" />
-        <option value="$PROJECT_DIR$/public/index.html" />
         <option value="$PROJECT_DIR$/src/components/Links.js" />
         <option value="$PROJECT_DIR$/public/service-worker.js" />
         <option value="$PROJECT_DIR$/public/manifest.json" />
+        <option value="$PROJECT_DIR$/src/index.js" />
+        <option value="$PROJECT_DIR$/public/index.html" />
+        <option value="$PROJECT_DIR$/src/registerServiceWorker.js" />
       </list>
     </option>
   </component>
@@ -431,12 +441,12 @@
       <workItem from="1530158973066" duration="1491000" />
       <workItem from="1530323331825" duration="1594000" />
       <workItem from="1530325776461" duration="4630000" />
-      <workItem from="1530374907750" duration="29717000" />
+      <workItem from="1530374907750" duration="30134000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="149692000" />
+    <option name="totallyTimeSpent" value="150109000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="777" extended-state="6" />
@@ -448,7 +458,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.3298193" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.3298193" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.3253012" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.3253012" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1825525" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
@@ -781,20 +791,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/registerServiceWorker.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="541">
-          <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/components/Link.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-461">
@@ -802,17 +798,84 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="10" column="27" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/components/Site.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-150">
           <caret line="2" selection-start-line="2" selection-end-line="2" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/manifest.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="5" column="29" selection-start-line="5" selection-start-column="23" selection-end-line="5" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/manifest.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-381">
+          <caret line="7" column="11" lean-forward="true" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/service-worker.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="79">
+          <caret line="38" column="48" selection-start-line="38" selection-start-column="48" selection-end-line="38" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Links.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="155">
+          <caret line="128" column="27" lean-forward="true" selection-start-line="128" selection-start-column="27" selection-end-line="128" selection-end-column="27" />
+          <folding>
+            <element signature="e#327#440#0" />
+            <element signature="e#364#435#0" />
+            <element signature="e#1583#2073#0" />
+            <element signature="e#1642#2068#0" />
+            <element signature="e#1722#1796#0" />
+            <element signature="e#1802#2062#0" />
+            <element signature="e#1877#2020#0" />
+            <element signature="e#1924#2010#0" />
+            <element signature="e#2096#2263#0" />
+            <element signature="e#2181#2231#0" />
+            <element signature="e#2484#2827#0" />
+            <element signature="e#2886#3177#0" />
+            <element signature="e#2908#3077#0" />
+            <element signature="e#3245#3378#0" />
+            <element signature="e#3424#3620#0" />
+            <element signature="e#4743#6714#0" />
+            <element signature="e#4769#5261#0" />
+            <element signature="e#5331#5565#0" />
+            <element signature="e#5400#5547#0" />
+            <element signature="e#5580#6326#0" />
+            <element signature="e#5951#6308#0" />
+            <element signature="e#6341#6695#0" />
+            <element signature="e#6410#6623#0" />
+            <element signature="e#6921#8082#0" />
+            <element signature="e#6949#7113#0" />
+            <element signature="e#7226#7510#0" />
+            <element signature="e#7279#7467#0" />
+            <element signature="e#7552#8042#0" />
+            <element signature="e#7584#7768#0" />
+            <element signature="e#7810#8017#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="95" column="14" lean-forward="true" selection-start-line="95" selection-start-column="14" selection-end-line="95" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="7" column="19" lean-forward="true" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
         </state>
       </provider>
     </entry>
@@ -963,70 +1026,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/Links.js">
+    <entry file="file://$PROJECT_DIR$/src/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="128" column="27" lean-forward="true" selection-start-line="128" selection-start-column="27" selection-end-line="128" selection-end-column="27" />
-          <folding>
-            <element signature="e#327#440#0" />
-            <element signature="e#364#435#0" />
-            <element signature="e#1583#2073#0" />
-            <element signature="e#1642#2068#0" />
-            <element signature="e#1722#1796#0" />
-            <element signature="e#1802#2062#0" />
-            <element signature="e#1877#2020#0" />
-            <element signature="e#1924#2010#0" />
-            <element signature="e#2096#2263#0" />
-            <element signature="e#2181#2231#0" />
-            <element signature="e#2484#2827#0" />
-            <element signature="e#2886#3177#0" />
-            <element signature="e#2908#3077#0" />
-            <element signature="e#3245#3378#0" />
-            <element signature="e#3424#3620#0" />
-            <element signature="e#4743#6714#0" />
-            <element signature="e#4769#5261#0" />
-            <element signature="e#5331#5565#0" />
-            <element signature="e#5400#5547#0" />
-            <element signature="e#5580#6326#0" />
-            <element signature="e#5951#6308#0" />
-            <element signature="e#6341#6695#0" />
-            <element signature="e#6410#6623#0" />
-            <element signature="e#6921#8082#0" />
-            <element signature="e#6949#7113#0" />
-            <element signature="e#7226#7510#0" />
-            <element signature="e#7279#7467#0" />
-            <element signature="e#7552#8042#0" />
-            <element signature="e#7584#7768#0" />
-            <element signature="e#7810#8017#0" />
-          </folding>
+        <state relative-caret-position="160">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/manifest.json">
+    <entry file="file://$PROJECT_DIR$/src/registerServiceWorker.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="5" column="29" selection-start-line="5" selection-start-column="23" selection-end-line="5" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/service-worker.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="79">
-          <caret line="38" column="48" selection-start-line="38" selection-start-column="48" selection-end-line="38" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="27" column="62" lean-forward="true" selection-start-line="27" selection-start-column="62" selection-end-line="27" selection-end-column="62" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/manifest.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="7" column="11" lean-forward="true" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
+        <state relative-caret-position="283">
+          <caret line="18" column="2" lean-forward="true" selection-start-line="18" selection-start-column="2" selection-end-line="18" selection-end-column="2" />
         </state>
       </provider>
     </entry>
