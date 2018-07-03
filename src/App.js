@@ -16,11 +16,12 @@ export default class App extends Component {
     this.state = {
       linksView: false,
       hideSources: false,
-      isWideView: true,
+      isWideView: false,
       isFirstVisit: true,
       splashLoaded: false,
       showLoadScreen: true,
       showError: false,
+      imageSizeFactor: 3,
 
       // nonsaved
       isMenuOpen: false,
@@ -30,7 +31,7 @@ export default class App extends Component {
       batch: null,
       screenWidth: 0,
       screenHeight: 0,
-      imageSizeFactor: 5,
+
       plusHovered: false,
       plusClicked: false,
       minusHovered: false,
@@ -233,6 +234,7 @@ export default class App extends Component {
   render() {
     const {
       records,
+      batch,
       screenHeight,
       screenWidth,
       imageSizeFactor,
@@ -262,9 +264,9 @@ export default class App extends Component {
     imageContainerWidth = (imageWidth + siteMargin * 2) * sitesWide;
 
     let updatedTime = null;
-    if (records) {
+    if (batch) {
       try {
-        updatedTime = moment(records[30].created_at);
+        updatedTime = moment(batch.created_at);
       } catch (e) {
         updatedTime = null;
       }
