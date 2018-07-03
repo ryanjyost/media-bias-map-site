@@ -2,11 +2,8 @@
  "name": "Bird's Eye News",
  "short_name": "Bird's Eye News",
  "start_url": "/?utm_source=homescreen",
- // Match our app header background
  "background_color": "#59CFA6",
- // What the URL bar will look like
  "theme_color": "#59CFA6",
- // How the app will appear when it launches (see link below)
  "display": "standalone",
  "icons": [
   {
