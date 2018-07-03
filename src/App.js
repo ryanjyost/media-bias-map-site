@@ -207,7 +207,24 @@ export default class App extends Component {
 
   handleShowMenu() {
     if (this.state.isFirstVisit) {
-      this.setState({ isFirstVisit: false });
+      setTimeout(
+        function() {
+          this.setState({ isMenuOpen: true });
+          setTimeout(
+            function() {
+              this.setState({ showMenuText: true });
+            }.bind(this),
+            300
+          );
+          setTimeout(
+            function() {
+              this.setState({ isFirstVisit: false });
+            }.bind(this),
+            10000
+          );
+        }.bind(this),
+        1000
+      );
     } else {
       if (this.state.isMenuOpen) {
         this.setState({ isMenuOpen: false, showMenuText: false });
@@ -300,88 +317,88 @@ export default class App extends Component {
     } else {
       return (
         <div>
-          {isFirstVisit ? (
-            <Motion
-              defaultStyle={{
-                height: 0,
-                width: 0,
-                opacity: 0
-              }}
-              style={{
-                height: spring(isFirstVisit ? 118 : 0),
-                width: spring(isFirstVisit ? 198 : 0),
-                opacity: spring(isFirstVisit && showMenuText ? 1 : 0)
-              }}
-            >
-              {style => (
+          <Motion
+            defaultStyle={{
+              height: 0,
+              width: 0,
+              opacity: 0
+            }}
+            style={{
+              height: spring(isFirstVisit ? 118 : 0),
+              width: spring(isFirstVisit ? 198 : 0),
+              opacity: spring(isFirstVisit && showMenuText ? 1 : 0)
+            }}
+          >
+            {style => (
+              <div
+                style={{
+                  position: "fixed",
+                  width: style.width,
+                  height: style.height,
+                  opacity: style.opacity,
+                  zIndex: 99,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  top: "60px",
+                  left: "60px",
+                  boxShadow: "8px 11px 28px -12px rgba(0,0,0,0.5)",
+                  backgroundColor: "rgba(240,240,240,0.98)",
+                  border: "1px solid #f2f2f2",
+                  borderBottomRightRadius: 3
+                }}
+              >
                 <div
                   style={{
-                    position: "fixed",
-                    width: style.width,
-                    height: style.height,
+                    padding: "0px 10px 0px 10px",
+                    fontSize: 12,
                     opacity: style.opacity,
-                    zIndex: 99,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    top: "60px",
-                    left: "60px",
-                    boxShadow: "8px 11px 28px -12px rgba(0,0,0,0.5)",
-                    backgroundColor: "rgba(240,240,240,0.98)",
-                    border: "1px solid #f2f2f2",
-                    borderBottomRightRadius: 3
+                    color: "rgba(0,0,0,0.6)"
                   }}
                 >
-                  <div
-                    style={{
-                      padding: "0px 10px 0px 10px",
-                      fontSize: 12,
-                      opacity: style.opacity,
-                      color: "rgba(0,0,0,0.6)"
-                    }}
-                  >
-                    Welcome to
-                  </div>
-                  <div
-                    style={{
-                      padding: "0px 10px",
-                      fontSize: 20,
-                      opacity: style.opacity,
-                      fontWeight: "bold"
-                    }}
-                  >
-                    Bird's Eye News
-                  </div>
-                  <div
-                    style={{
-                      padding: "0px 12px",
-                      fontSize: 14,
-                      opacity: style.opacity,
-                      color: "rgba(0,0,0,0.5)"
-                    }}
-                  >
-                    where you can{" "}
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        color: "#59CFA6",
-                        letterSpacing: "0.05em",
-                        fontSize: 16,
-                        opacity: style.opacity
-                      }}
-                    >
-                      fly above the bullshit.
-                    </span>
-                  </div>
+                  Welcome to
                 </div>
-              )}
-            </Motion>
-          ) : null}
+                <div
+                  style={{
+                    padding: "0px 10px",
+                    fontSize: 20,
+                    opacity: style.opacity,
+                    fontWeight: "bold"
+                  }}
+                >
+                  Bird's Eye News
+                </div>
+                <div
+                  style={{
+                    padding: "0px 12px",
+                    fontSize: 14,
+                    opacity: style.opacity,
+                    color: "rgba(0,0,0,0.5)"
+                  }}
+                >
+                  where you can{" "}
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      color: "#59CFA6",
+                      letterSpacing: "0.05em",
+                      fontSize: 16,
+                      opacity: style.opacity
+                    }}
+                  >
+                    fly above the bullshit.
+                  </span>
+                </div>
+              </div>
+            )}
+          </Motion>
+
           <SimpleStorage
             parent={this}
             blacklist={[
-              "isFirstVisit",
               "records",
+              "batch",
+              "links",
               "screenWidth",
               "screenHeight",
               "plusHovered",
@@ -392,8 +409,12 @@ export default class App extends Component {
               "isMouseDown",
               "startX",
               "startY",
-              "isMenuOpen",
-              "showMenuText"
+              // "isMenuOpen",
+              // "showMenuText",
+              "splashLoaded",
+              "showLoadScreen",
+              "showError",
+              "gotLinks"
             ]}
           />
 
