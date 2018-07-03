@@ -125,7 +125,6 @@ export default class Links extends Component {
                 ? this.props.batch.tags.map((tag, i) => {
                     let z = zScore(tag.tf, tagMean, tagSD);
                     let factor = 1 + z;
-                    console.log(z);
                     return (
                       <span
                         key={i}
