@@ -50,6 +50,17 @@ export default class App extends Component {
     };
   }
 
+  lsTest() {
+    const test = "test";
+    try {
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   componentDidMount() {
     //get recent posts
     axios
@@ -105,7 +116,8 @@ export default class App extends Component {
     );
 
     document.addEventListener("keydown", this.handleKeyZoom.bind(this), false);
-    this.handleShowMenu();
+
+    setTimeout(this.handleShowMenu.bind(this), 1000);
 
     // google analystics
     this.initReactGA();
@@ -206,37 +218,20 @@ export default class App extends Component {
   }
 
   handleShowMenu() {
-    if (this.state.isFirstVisit) {
+    if (this.state.isMenuOpen) {
+      this.setState({
+        isMenuOpen: false,
+        showMenuText: false,
+        isFirstVisit: false
+      });
+    } else {
+      this.setState({ isMenuOpen: true });
       setTimeout(
         function() {
-          this.setState({ isMenuOpen: true });
-          setTimeout(
-            function() {
-              this.setState({ showMenuText: true });
-            }.bind(this),
-            300
-          );
-          setTimeout(
-            function() {
-              this.setState({ isFirstVisit: false });
-            }.bind(this),
-            10000
-          );
+          this.setState({ showMenuText: true });
         }.bind(this),
-        1000
+        100
       );
-    } else {
-      if (this.state.isMenuOpen) {
-        this.setState({ isMenuOpen: false, showMenuText: false });
-      } else {
-        this.setState({ isMenuOpen: true });
-        setTimeout(
-          function() {
-            this.setState({ showMenuText: true });
-          }.bind(this),
-          300
-        );
-      }
     }
   }
 
@@ -396,6 +391,7 @@ export default class App extends Component {
           <SimpleStorage
             parent={this}
             blacklist={[
+              "isFirstVisit",
               "records",
               "batch",
               "links",
@@ -409,8 +405,8 @@ export default class App extends Component {
               "isMouseDown",
               "startX",
               "startY",
-              // "isMenuOpen",
-              // "showMenuText",
+              "isMenuOpen",
+              "showMenuText",
               "splashLoaded",
               "showLoadScreen",
               "showError",
