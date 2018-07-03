@@ -221,6 +221,14 @@ export default class App extends Component {
     }
   }
 
+  reportSearchToGA(text) {
+    ReactGA.event({
+      category: "Input",
+      action: "Searched headlines",
+      value: text
+    });
+  }
+
   render() {
     const {
       records,
@@ -903,6 +911,7 @@ export default class App extends Component {
               hideSources={hideSources}
               links={this.state.links}
               gotLinks={this.state.gotLinks}
+              handleReportSearchToGA={text => this.reportSearchToGA(text)}
             />
           </div>
         </div>

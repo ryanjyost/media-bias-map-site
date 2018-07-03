@@ -47,16 +47,7 @@ export default class Links extends Component {
       50
     );
 
-    ReactGA.event({
-      category: "Input",
-      action: "Searched headlines",
-      value: text
-    });
-  }
-
-  initReactGA() {
-    ReactGA.initialize("UA-97014671-4");
-    ReactGA.pageview("/");
+    this.props.handleReportSearchToGA(text);
   }
 
   render() {
