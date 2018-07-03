@@ -8,6 +8,7 @@ import SimpleStorage from "react-simple-storage";
 import moment from "moment";
 import Loader from "react-loader-spinner";
 import ReactGA from "react-ga";
+import detectIt from "detect-it";
 
 export default class App extends Component {
   constructor(props) {

@@ -6,6 +6,7 @@ import _array from "lodash/array";
 import Link from "./Link";
 import Loader from "react-loader-spinner";
 import ReactGA from "react-ga";
+import { mean, standardDeviation, zScore, median } from "simple-statistics";
 
 export default class Links extends Component {
   constructor(props) {
@@ -86,6 +87,13 @@ export default class Links extends Component {
         </div>
       );
     } else {
+      const tags = this.props.batch.tags;
+      const tagCounts = tags.map(tag => {
+        return tag.tf;
+      });
+      const tagMean = mean(tagCounts);
+      const tagSD = standardDeviation(tagCounts);
+
       return (
         <div
           style={{
@@ -109,16 +117,20 @@ export default class Links extends Component {
                 display: "flex",
                 flexWrap: "wrap",
                 justifyContent: "flex-end",
+                alignItems: "baseline",
                 paddingLeft: 20
               }}
             >
               {this.props.batch
                 ? this.props.batch.tags.map((tag, i) => {
+                    let z = zScore(tag.tf, tagMean, tagSD);
+                    let factor = 1 + z;
+                    console.log(z);
                     return (
                       <span
                         key={i}
                         style={{
-                          fontSize: 18,
+                          fontSize: median([Math.floor(20 * factor), 30, 12]),
                           margin: 3,
                           padding: "4px 9px",
                           borderRadius: 3,

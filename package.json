@@ -21,7 +21,8 @@
     "react-rangeslider": "^2.2.0",
     "react-scroll-box": "^0.3.5",
     "react-simple-storage": "^1.1.1",
-    "shuffle-array": "^1.0.1"
+    "shuffle-array": "^1.0.1",
+    "simple-statistics": "^6.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
