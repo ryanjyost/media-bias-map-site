@@ -1,22 +1,24 @@
 import React, { Component } from "react";
-import { Motion, spring } from "react-motion";
+import { XmlEntities } from "html-entities";
 
-export default class Link extends Component {
+export default class Article extends Component {
   constructor(props) {
     super(props);
     this.state = { hover: false };
   }
 
   render() {
-    const { link, i, hideSource } = this.props;
+    const { article, i, hideSource } = this.props;
     const { hover } = this.state;
+
+    const entities = new XmlEntities();
     return (
       <a
         key={i}
         rel="noreferrer"
         target={"_blank"}
         className={"articleLink"}
-        href={link.href}
+        href={article.link}
         style={{
           display: "flex",
           padding: "5px 0px",
@@ -32,26 +34,47 @@ export default class Link extends Component {
             display: "flex"
           }}
         >
-          <div
+          <h3
             style={{
-              fontSize: 16,
+              fontSize: 15,
               // color: "rgba(0, 0, 0, 0.9)",
               textDecoration: hover ? "underline" : "none",
-              padding: "0px 0px 3px 0px"
+              padding: "0px 0px 3px 0px",
+              margin: "0px 0px"
             }}
           >
-            {link.text}
+            {entities.decode(article.title)}
+          </h3>
+        </div>
+        <div
+          style={{
+            display: "flex"
+          }}
+        >
+          <div
+            className={"desc"}
+            style={{
+              fontSize: 12,
+
+              overflow: "hidden",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical"
+            }}
+          >
+            {entities.decode(article.description)}
           </div>
         </div>
         {hideSource ? null : (
           <div
             className={"source"}
             style={{
-              textAlign: "left",
-              fontSize: 12
+              textAlign: "right",
+              fontSize: 12,
+              marginTop: 5
             }}
           >
-            {link.site.title}
+            {article.site.title}
           </div>
         )}
       </a>

@@ -1,3 +1,7 @@
+._reference {
+  color: #59CFA6;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -8,7 +12,20 @@ body {
   -ms-user-select: none;
   user-select: none;
   background-color: #fafafa;
+  /* iOS */
+  /*font-family: sans-serif;*/
+  /*font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
+
+  /*!* Android *!*/
+  /*font-family: 'RobotoRegular', 'Droid Sans', sans-serif;*/
+
+  /*!* Windows Phone *!*/
+  /*font-family: 'Segoe UI', Segoe, Tahoma, Geneva, sans-serif;*/
   font-family: 'Source Sans Pro', sans-serif;
+}
+
+@media(min-width: 800px) {
+  body {font-family: 'Source Sans Pro', sans-serif;}
 }
 
 input:active, input:focus {
@@ -54,7 +71,7 @@ input:active, input:focus {
   color: rgba(0,0,0,0.8);
 }
 
-.source {
+.source, .desc {
   color: rgba(0,0,0,0.6);
 }
 
@@ -62,7 +79,7 @@ input:active, input:focus {
   color: #a4a4a4;
 }
 
-.articleLink:visited .source {
+.articleLink:visited .source, .articleLink:visited .desc {
   color: #d8d8d8;
 }
 
@@ -76,6 +93,17 @@ input::placeholder {
 
 input:active, input:focus  {
   color: rgba(51, 55, 70, 1) !important;
+}
+
+.clickBtn {
+  white-space:nowrap;
+  cursor: pointer;
+}
+
+.clickBtn:active {
+ opacity: 0.5 !important;
+  user-select: none !important;
+  color: #333746 !important;
 }
 
 
