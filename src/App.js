@@ -189,9 +189,9 @@ export default class App extends Component {
             alignItems: "center",
             flexDirection: "column",
             opacity: 1,
-            borderBottom: "2px solid #f2f2f2",
-            WebkitBoxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px",
-            boxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px"
+            borderBottom: "2px solid #f2f2f2"
+            // WebkitBoxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px",
+            // boxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px"
           }}
         >
           {!showTopBar ? null : (
@@ -441,57 +441,7 @@ export default class App extends Component {
               }}
               className={"clickBtn"}
             >
-              Topics
-            </div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "98%",
-              margin: "auto",
-              padding: "0px 0px 0px 0px",
-              borderTop: "1px solid #e5e5e5",
-              borderBottom: "1px solid #e5e5e5"
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                padding: "0px 10px",
-                height: 40
-              }}
-            >
-              <div>
-                <i
-                  className={"fa fa-chevron-down"}
-                  style={{
-                    marginRight: 10,
-                    fontSize: 14,
-                    color: "rgba(51, 55, 70, 0.5)"
-                  }}
-                />
-              </div>
-              All Sources
-            </div>
-            <div
-              className="clickBtn"
-              style={{
-                height: 40,
-                borderLeft: "1px solid #e5e5e5",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 80
-              }}
-            >
-              <i
-                className={"fa fa-random"}
-                style={{ fontSize: 20, color: "rgba(51, 55, 70, 0.8)" }}
-              />
+              Buzzwords
             </div>
           </div>
         </div>
@@ -537,7 +487,62 @@ export default class App extends Component {
         <div style={{ height: "100vh" }}>
           <TopBar />
 
-          <Topics />
+          {/* search menu */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              margin: "auto",
+              padding: "0px 0px 0px 0px",
+              borderTop: "2px solid #f2f2f2",
+              position: "fixed",
+              bottom: 0,
+              zIndex: 90000,
+              backgroundColor: "#fafafa"
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                padding: "0px 10px 0px 15px",
+                height: 50
+              }}
+            >
+              <div>
+                <i
+                  className={"fa fa-chevron-right"}
+                  style={{
+                    marginRight: 10,
+                    fontSize: 18,
+                    color: "rgba(51, 55, 70, 0.5)"
+                  }}
+                />
+              </div>
+              All Sources
+            </div>
+            <div
+              className="clickBtn"
+              style={{
+                height: 50,
+                borderLeft: "1px solid #e5e5e5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 80
+              }}
+            >
+              <i
+                className={"fa fa-random"}
+                style={{ fontSize: 20, color: "rgba(51, 55, 70, 0.8)" }}
+              />
+            </div>
+          </div>
+
+          {/*<Topics />*/}
 
           {/* scroll top */}
           <div
