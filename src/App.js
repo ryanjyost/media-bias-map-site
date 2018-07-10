@@ -16,6 +16,7 @@ import Site from "./components/Site";
 import FrontPages from "./pages/FrontPages";
 import Links from "./pages/Links";
 import Home from "./pages/Home";
+import axios from "axios/index";
 
 // const TopBarWithRouter = withRouter(props => <TopBar {...props} />);
 
@@ -25,6 +26,15 @@ export default class App extends Component {
     this.state = {
       view: "frontPages",
 
+      // data
+      articles: [],
+      round: null,
+
+      //other
+      search: "",
+
+      // UI
+      gotLinks: false,
       splashLoaded: false,
       showLoadScreen: true,
       showError: false,
@@ -35,74 +45,23 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    //get recent posts
-    // axios
-    //   .get(`http://localhost:8000/get_recent`, {
-    //     Accept: "application/json"
-    //   })
-    //   .then(response => {
-    //     //let results = response.body.results;
-    //     // console.log("hey", response.data.records);
-    //     const records = response.data.records;
-    //     const randomOrder = shuffle(records, { copy: true });
-    //
-    //     // shuffle all
-    //     let allArticles = [];
-    //     for (let site in response.data.articles) {
-    //       // console.log(articles[site]);
-    //       allArticles = allArticles.concat(response.data.articles[site]);
-    //     }
-    //
-    //     let allShuffledArticles = shuffle(allArticles, { copy: true });
-    //
-    //     this.setState({
-    //       records: randomOrder,
-    //       batch: response.data.batch,
-    //       round: response.data.round,
-    //       articles: response.data.articles,
-    //       allArticles: response.data.articles
-    //     });
-    //
-    //     let allLinks = [];
-    //     for (let record of records) {
-    //       let links = record.content.links
-    //         .filter(link => {
-    //           return link.text.length > 5;
-    //         })
-    //         .map(link => {
-    //           return { ...link, site: record.site };
-    //         });
-    //       allLinks.push(links);
-    //     }
-    //
-    //     const flattened = allLinks.reduce(function(accumulator, currentValue) {
-    //       return accumulator.concat(currentValue);
-    //     }, []);
-    //
-    //     const shuffled = shuffle(flattened, { copy: true });
-    //
-    //     this.setState({
-    //       links: shuffled,
-    //       gotLinks: true,
-    //       showLoadScreen: false
-    //     });
-    //   })
-    //   .catch(error => {
-    //     console.log("ERROR", error);
-    //     this.setState({ showError: true });
-    //   });
-
-    // this.updateDimensions();
-    //
-    // window.addEventListener(
-    //   "resize",
-    //   this.throttle(this.updateDimensions.bind(this), 1000)
-    // );
-
-    window.addEventListener(
-      "scroll",
-      this.throttle(this.handleScroll.bind(this), 100)
-    );
+    axios
+      .get(`https://birds-eye-news-api.herokuapp.com/get_headlines`, {
+        Accept: "application/json"
+      })
+      .then(response => {
+        this.setState({
+          articles: shuffle(response.data.articles),
+          round: response.data.round,
+          gotLinks: true,
+          search: response.data.round.tags[0].term
+        });
+      })
+      .catch(error => {
+        console.log("ERROR", error);
+        this.setState({ showError: true });
+      });
+    window.addEventListener("scroll", this.handleScroll.bind(this));
 
     // document.addEventListener("keydown", this.handleKeyZoom.bind(this), false);
 
@@ -219,150 +178,294 @@ export default class App extends Component {
       return (
         <div
           style={{
-            // position: "fixed",
-            // top: "0px",
+            position: "fixed",
+            top: "0px",
             width: "100%",
-            height: 40,
+            // height: showScrollTop ? 40 : 80,
             backgroundColor: "#fafafa",
             zIndex: 100,
             display: "flex",
             alignItems: "center",
             flexDirection: "column",
-            opacity: 0.98
+            opacity: 0.98,
+            borderBottom: "2px solid #f2f2f2",
+            WebkitBoxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px",
+            boxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px"
           }}
         >
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              fontSize: 13,
-              height: 40,
-              flexFlow: "row wrap",
-              maxWidth: 800
-            }}
-          >
-            {/* Hamburger menu */}
-            <Motion
-              defaultStyle={{
-                topBarRotation: 0,
-                topBarTop: -4,
-                wideMenuWidth: 0,
-                menuHeight: 0,
-                wideMenuPaddingRight: 0,
-                wideMenuPaddingLeft: 0,
-                wideMenuOpacity: 0,
-                borderRadius: 3,
-                buttonOpacity: 1
-              }}
+          {showScrollTop ? null : (
+            <div
               style={{
-                topBarRotation: spring(isMenuOpen ? 45 : 0),
-                topBarTop: spring(isMenuOpen ? 0 : -4),
-                wideMenuWidth: spring(isMenuOpen ? 200 : 0),
-                menuHeight: spring(isMenuOpen ? 120 : 0),
-                wideMenuPaddingRight: spring(isMenuOpen ? 20 : 0),
-                wideMenuPaddingLeft: spring(isMenuOpen ? 30 : 0),
-                wideMenuOpacity: spring(isMenuOpen ? 1 : 0),
-                borderRadius: spring(isMenuOpen ? 0 : 3),
-                buttonOpacity: spring(isMenuOpen ? 1 : 0.8)
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                fontSize: 13,
+                height: 40,
+                flexFlow: "row wrap",
+                maxWidth: 800
               }}
             >
-              {style => (
-                <div
-                  style={{
-                    order: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    position: "relative",
-                    marginLeft: 10,
-                    opacity: 0,
-                    width: 100
-                  }}
-                  onClick={() =>
-                    this.setState({
-                      menuOpen: isMenuOpen ? null : "main"
-                    })
-                  }
-                >
+              {/* Hamburger menu */}
+              <Motion
+                defaultStyle={{
+                  topBarRotation: 0,
+                  topBarTop: -4,
+                  wideMenuWidth: 0,
+                  menuHeight: 0,
+                  wideMenuPaddingRight: 0,
+                  wideMenuPaddingLeft: 0,
+                  wideMenuOpacity: 0,
+                  borderRadius: 3,
+                  buttonOpacity: 1
+                }}
+                style={{
+                  topBarRotation: spring(isMenuOpen ? 45 : 0),
+                  topBarTop: spring(isMenuOpen ? 0 : -4),
+                  wideMenuWidth: spring(isMenuOpen ? 200 : 0),
+                  menuHeight: spring(isMenuOpen ? 120 : 0),
+                  wideMenuPaddingRight: spring(isMenuOpen ? 20 : 0),
+                  wideMenuPaddingLeft: spring(isMenuOpen ? 30 : 0),
+                  wideMenuOpacity: spring(isMenuOpen ? 1 : 0),
+                  borderRadius: spring(isMenuOpen ? 0 : 3),
+                  buttonOpacity: spring(isMenuOpen ? 1 : 0.8)
+                }}
+              >
+                {style => (
                   <div
                     style={{
-                      position: "relative"
+                      order: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      position: "relative",
+                      marginLeft: 10,
+                      opacity: 0,
+                      width: 100
                     }}
-                    className={"clickBtn"}
+                    onClick={() =>
+                      this.setState({
+                        menuOpen: isMenuOpen ? null : "main"
+                      })
+                    }
                   >
                     <div
                       style={{
-                        width: 15,
-                        height: 2,
-                        backgroundColor: isMenuOpen
-                          ? "rgba(51, 55, 70, 0.7)"
-                          : "rgba(51, 55, 70, 0.7)",
-                        zIndex: 20,
-                        position: "absolute",
-                        top: isMenuOpen ? "0px" : `${-style.topBarTop}px`,
-                        // marginTop: style.topBarMargin,
-                        transform: `rotate(${style.topBarRotation}deg)`,
-                        borderRadius: 9999
+                        position: "relative"
                       }}
-                    />
-                    <div
-                      style={{
-                        width: 15,
-                        height: isMenuOpen ? 0 : 2,
-                        backgroundColor: isMenuOpen
-                          ? "rgba(51, 55, 70, 0.7)"
-                          : "rgba(51, 55, 70, 0.7)",
-                        zIndex: 20,
-                        borderRadius: 9999
-                      }}
-                    />
-                    <div
-                      style={{
-                        width: 15,
-                        height: 2,
-                        backgroundColor: isMenuOpen
-                          ? "rgba(51, 55, 70, 0.7)"
-                          : "rgba(51, 55, 70, 0.7)",
-                        zIndex: 20,
-                        // borderRadius: 30,
-                        // marginBottom: isMenuOpen ? 5 : 0,
-                        top: isMenuOpen ? "0px" : `${style.topBarTop}px`,
-                        position: "absolute",
-                        transform: `rotate(${-style.topBarRotation}deg)`,
-                        borderRadius: 9999
-                      }}
-                    />
+                      className={"clickBtn"}
+                    >
+                      <div
+                        style={{
+                          width: 15,
+                          height: 2,
+                          backgroundColor: isMenuOpen
+                            ? "rgba(51, 55, 70, 0.7)"
+                            : "rgba(51, 55, 70, 0.7)",
+                          zIndex: 20,
+                          position: "absolute",
+                          top: isMenuOpen ? "0px" : `${-style.topBarTop}px`,
+                          // marginTop: style.topBarMargin,
+                          transform: `rotate(${style.topBarRotation}deg)`,
+                          borderRadius: 9999
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: 15,
+                          height: isMenuOpen ? 0 : 2,
+                          backgroundColor: isMenuOpen
+                            ? "rgba(51, 55, 70, 0.7)"
+                            : "rgba(51, 55, 70, 0.7)",
+                          zIndex: 20,
+                          borderRadius: 9999
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: 15,
+                          height: 2,
+                          backgroundColor: isMenuOpen
+                            ? "rgba(51, 55, 70, 0.7)"
+                            : "rgba(51, 55, 70, 0.7)",
+                          zIndex: 20,
+                          // borderRadius: 30,
+                          // marginBottom: isMenuOpen ? 5 : 0,
+                          top: isMenuOpen ? "0px" : `${style.topBarTop}px`,
+                          position: "absolute",
+                          transform: `rotate(${-style.topBarRotation}deg)`,
+                          borderRadius: 9999
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
-            </Motion>
+                )}
+              </Motion>
+              <div
+                style={{
+                  textAlign: "center",
+                  order: 2,
+                  flex: 3,
+                  color: "rgb(51, 55, 70)",
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  letterSpacing: "0.03em"
+                }}
+              >
+                newsbie
+              </div>
+              <div
+                style={{
+                  textAlign: "right",
+                  order: 3,
+                  color: "rgba(51, 55, 70, 0)",
+                  width: 100
+                }}
+              >
+                How It Works
+              </div>
+            </div>
+          )}
+          {/* Nav */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "98%",
+              margin: "auto",
+              padding: "0px 0px 0px 0px"
+            }}
+          >
             <div
-              style={{
-                textAlign: "center",
-                order: 2,
-                flex: 3,
-                color: "rgb(51, 55, 70)"
+              onClick={() => {
+                this.setState({
+                  view: "frontPages"
+                });
+                this.scrollTop();
               }}
+              style={{
+                flex: 0.25,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: this.state.view === "frontPages" ? "bold" : "light",
+                padding: "5px 15px 5px 15px",
+                borderTop:
+                  this.state.view === "frontPages"
+                    ? "3px solid #59CFA6"
+                    : "3px solid rgb(51, 55, 70, 0.3)",
+                fontSize: 14,
+                height: 20
+              }}
+              className={"clickBtn"}
             >
-              newsbie
+              Front Pages
             </div>
             <div
-              style={{
-                textAlign: "right",
-                order: 3,
-                paddingRight: 20,
-                color: "rgba(51, 55, 70, 0)",
-                width: 100
+              onClick={() => {
+                this.setState({
+                  view: "headlines"
+                });
+                this.scrollTop();
               }}
+              style={{
+                flex: 0.25,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: this.state.view === "headlines" ? "bold" : "light",
+                padding: "5px 15px 5px 15px",
+                borderTop:
+                  this.state.view === "headlines"
+                    ? "3px solid #59CFA6"
+                    : "3px solid rgb(51, 55, 70, 0.3)",
+                fontSize: 14,
+                height: 20
+              }}
+              className={"clickBtn"}
             >
-              How It Works
+              Headlines
+            </div>
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "opinion"
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.25,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: this.state.view === "opinion" ? "bold" : "light",
+                padding: "5px 15px 5px 15px",
+                borderTop:
+                  this.state.view === "opinion"
+                    ? "3px solid #59CFA6"
+                    : "3px solid rgb(51, 55, 70, 0.3)",
+                fontSize: 14,
+                height: 20
+              }}
+              className={"clickBtn"}
+            >
+              Opinions
+            </div>
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "topics"
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.25,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: this.state.view === "topics" ? "bold" : "light",
+                padding: "5px 15px 5px 15px",
+                borderTop:
+                  this.state.view === "topics"
+                    ? "3px solid #59CFA6"
+                    : "3px solid rgb(51, 55, 70, 0.3)",
+                fontSize: 14,
+                height: 20
+              }}
+              className={"clickBtn"}
+            >
+              Topics
             </div>
           </div>
         </div>
       );
+    };
+
+    const Topics = () => {
+      if (this.state.view === "frontPages") {
+        return null;
+      } else {
+        return (
+          <div
+            style={{
+              height: 50,
+              backgroundColor: "rgba(51, 55, 70, 1)",
+              position: "fixed",
+              bottom: 0,
+              zIndex: 90000,
+              width: "100%"
+            }}
+          >
+            hey
+          </div>
+        );
+      }
     };
 
     if (showError && false) {
@@ -380,105 +483,10 @@ export default class App extends Component {
       );
     } else {
       return (
-        <div style={{ height: "100vh", overflow: "auto" }}>
+        <div style={{ height: "100vh" }}>
           <TopBar />
-          {/* Nav */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              position: "sticky",
-              top: 0,
-              zIndex: 100000,
-              backgroundColor: "#fafafa",
-              padding: "10px 0px",
-              borderBottom: "1px solid #f2f2f2"
-            }}
-          >
-            <div
-              onClick={() => {
-                this.setState({
-                  view:
-                    this.state.view === "frontPages"
-                      ? "headlines"
-                      : "frontPages"
-                });
-                this.scrollTop();
-              }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                // flex: 0.5,
-                padding: "0px 5px 2px 5px",
-                borderBottom: "2px solid #59CFA6",
-                fontSize: 13,
-                height: 20
-              }}
-              className={"clickBtn"}
-            >
-              <i
-                className={"fa fa-exchange-alt"}
-                style={{
-                  transform: "rotate(90deg)",
-                  fontSize: 8,
-                  marginRight: 3,
-                  color: "rgba(51, 55, 70, 0.7)"
-                }}
-              />
-              {this.state.view === "frontPages" ? "Front Pages" : "Headlines"}
-            </div>
-            <div
-              style={{
-                margin: "0px 6px",
-                fontSize: 10,
-                color: "rgba(51, 55, 70, 0.5)"
-              }}
-            >
-              from
-            </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                justifyContent: "space-between",
-                // flex: 0.5,
-                padding: "0px 5px 2px 5px",
-                borderBottom: "2px solid #59CFA6",
-                fontSize: 13,
-                height: 20
-              }}
-              className={"clickBtn"}
-            >
-              All News Sources
-            </div>
-            <div
-              style={{
-                margin: "0px 6px",
-                fontSize: 10,
-                color: "rgba(51, 55, 70, 0.5)"
-              }}
-            >
-              from
-            </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                justifyContent: "space-between",
-                // flex: 0.5,
-                padding: "0px 5px 2px 5px",
-                borderBottom: "2px solid #59CFA6",
-                fontSize: 13,
-                height: 20
-              }}
-              className={"clickBtn"}
-            >
-              All News Sources
-            </div>
-          </div>
+
+          <Topics />
 
           {/* scroll top */}
           <div
@@ -505,8 +513,15 @@ export default class App extends Component {
             <i className={"fas fa-arrow-up"} />
           </div>
 
-          <div style={{ overflow: "auto" }}>
-            <Home {...this.props} view={this.state.view} />
+          <div
+            style={
+              {
+                // WebkitFilter: `grayscale(30%)`,
+                // filter: `grayscale(30%)`
+              }
+            }
+          >
+            <Home {...this.props} {...this.state} />
           </div>
 
           {/*<Route*/}

@@ -11,58 +11,34 @@ import { mean, standardDeviation, zScore, median } from "simple-statistics";
 export default class Links extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      search: "",
-      tag: null,
-      filterActive: false,
-      pulse: false,
-      articles: [],
-      gotLinks: false
-    };
   }
 
   componentDidMount() {
     //get recent posts
-    axios
-      .get(`https://birds-eye-news-api.herokuapp.com/get_headlines`, {
-        Accept: "application/json"
-      })
-      .then(response => {
-        this.setState({
-          articles: shuffle(response.data.articles),
-          round: response.data.round,
-          gotLinks: true,
-          search: response.data.round.tags[0].term
-        });
-      })
-      .catch(error => {
-        console.log("ERROR", error);
-        this.setState({ showError: true });
-      });
   }
 
-  handleSearch(text) {
-    this.setState({ search: text });
-    // setTimeout(
-    //   function() {
-    //     this.setState({ pulse: false });
-    //   }.bind(this),
-    //   50
-    // );
+  // handleSearch(text) {
+  //   this.setState({ search: text });
+  //   // setTimeout(
+  //   //   function() {
+  //   //     this.setState({ pulse: false });
+  //   //   }.bind(this),
+  //   //   50
+  //   // );
+  //
+  //   this.reportSearchToGA(text);
+  // }
 
-    this.reportSearchToGA(text);
-  }
-
-  reportSearchToGA(text) {
-    ReactGA.event({
-      category: "Input",
-      action: "Searched headlines",
-      value: text
-    });
-  }
+  // reportSearchToGA(text) {
+  //   ReactGA.event({
+  //     category: "Input",
+  //     action: "Searched headlines",
+  //     value: text
+  //   });
+  // }
 
   render() {
-    const { filterActive, search, round, articles, tag } = this.state;
+    const { search, round, articles, tag } = this.props;
 
     // const filteredLinks = allArticles.filter(item => {
     //   let allText = item.title + " " + item.description;
@@ -94,7 +70,7 @@ export default class Links extends Component {
       }
     });
 
-    if (!this.state.gotLinks) {
+    if (!this.props.gotLinks) {
       return (
         <div
           style={{
@@ -175,7 +151,7 @@ export default class Links extends Component {
                             padding: "4px 9px",
                             borderRadius: 3,
                             backgroundColor:
-                              tag.term === this.state.search
+                              tag.term === this.props.search
                                 ? "rgba(51, 55, 70, 1)"
                                 : "rgba(51, 55, 70, 0.7)",
                             color: "rgba(255,255,255,0.95)",
@@ -218,7 +194,7 @@ export default class Links extends Component {
               {/*/>*/}
               {/*<input*/}
               {/*type={"text"}*/}
-              {/*value={this.state.search}*/}
+              {/*value={this.props.search}*/}
               {/*placeholder={"Search headlines"}*/}
               {/*onChange={e => this.handleSearch(e.target.value.toLowerCase())}*/}
               {/*onFocus={() => this.setState({ filterActive: true })}*/}
@@ -251,7 +227,7 @@ export default class Links extends Component {
 
             <Motion
               defaultStyle={{ pulseOpacity: 0 }}
-              style={{ pulseOpacity: spring(this.state.pulse ? 0.5 : 0) }}
+              style={{ pulseOpacity: spring(this.props.pulse ? 0.5 : 0) }}
             >
               {style => (
                 <div
