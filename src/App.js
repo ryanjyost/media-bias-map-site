@@ -34,6 +34,7 @@ export default class App extends Component {
       search: "",
 
       // UI
+      showTopBar: true,
       gotLinks: false,
       splashLoaded: false,
       showLoadScreen: true,
@@ -110,9 +111,9 @@ export default class App extends Component {
 
   handleScroll(e) {
     if (window.scrollY > 300 && !this.state.showScrollTop) {
-      this.setState({ showScrollTop: true });
+      this.setState({ showScrollTop: true, showTopBar: false });
     } else if (window.scrollY < 301 && this.state.showScrollTop) {
-      this.setState({ showScrollTop: false });
+      this.setState({ showScrollTop: false, showTopBar: true });
     }
   }
 
@@ -141,7 +142,7 @@ export default class App extends Component {
     };
   }
 
-  scrollTop(isSmooth = false) {
+  scrollTop(isSmooth = false, top = 0) {
     window.scrollTo({
       top: 0,
       left: 0,
@@ -150,7 +151,7 @@ export default class App extends Component {
   }
 
   render() {
-    const { batch, showScrollTop, showError } = this.state;
+    const { batch, showScrollTop, showError, showTopBar } = this.state;
     let isMenuOpen = false;
 
     // let updatedTime = null;
@@ -187,13 +188,13 @@ export default class App extends Component {
             display: "flex",
             alignItems: "center",
             flexDirection: "column",
-            opacity: 0.98,
+            opacity: 1,
             borderBottom: "2px solid #f2f2f2",
             WebkitBoxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px",
             boxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px"
           }}
         >
-          {showScrollTop ? null : (
+          {!showTopBar ? null : (
             <div
               style={{
                 width: "100%",
@@ -352,12 +353,12 @@ export default class App extends Component {
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: this.state.view === "frontPages" ? "bold" : "light",
-                padding: "5px 15px 5px 15px",
+                padding: "10px 15px 10px 15px",
                 borderTop:
                   this.state.view === "frontPages"
                     ? "3px solid #59CFA6"
                     : "3px solid rgb(51, 55, 70, 0.3)",
-                fontSize: 14,
+                fontSize: 15,
                 height: 20
               }}
               className={"clickBtn"}
@@ -378,12 +379,12 @@ export default class App extends Component {
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: this.state.view === "headlines" ? "bold" : "light",
-                padding: "5px 15px 5px 15px",
+                padding: "10px 15px 10px 15px",
                 borderTop:
                   this.state.view === "headlines"
                     ? "3px solid #59CFA6"
                     : "3px solid rgb(51, 55, 70, 0.3)",
-                fontSize: 14,
+                fontSize: 15,
                 height: 20
               }}
               className={"clickBtn"}
@@ -404,12 +405,12 @@ export default class App extends Component {
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: this.state.view === "opinion" ? "bold" : "light",
-                padding: "5px 15px 5px 15px",
+                padding: "10px 15px 10px 15px",
                 borderTop:
                   this.state.view === "opinion"
                     ? "3px solid #59CFA6"
                     : "3px solid rgb(51, 55, 70, 0.3)",
-                fontSize: 14,
+                fontSize: 15,
                 height: 20
               }}
               className={"clickBtn"}
@@ -430,17 +431,67 @@ export default class App extends Component {
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: this.state.view === "topics" ? "bold" : "light",
-                padding: "5px 15px 5px 15px",
+                padding: "10px 15px 10px 15px",
                 borderTop:
                   this.state.view === "topics"
                     ? "3px solid #59CFA6"
                     : "3px solid rgb(51, 55, 70, 0.3)",
-                fontSize: 14,
+                fontSize: 15,
                 height: 20
               }}
               className={"clickBtn"}
             >
               Topics
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "98%",
+              margin: "auto",
+              padding: "0px 0px 0px 0px",
+              borderTop: "1px solid #e5e5e5",
+              borderBottom: "1px solid #e5e5e5"
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                padding: "0px 10px",
+                height: 40
+              }}
+            >
+              <div>
+                <i
+                  className={"fa fa-chevron-down"}
+                  style={{
+                    marginRight: 10,
+                    fontSize: 14,
+                    color: "rgba(51, 55, 70, 0.5)"
+                  }}
+                />
+              </div>
+              All Sources
+            </div>
+            <div
+              className="clickBtn"
+              style={{
+                height: 40,
+                borderLeft: "1px solid #e5e5e5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 80
+              }}
+            >
+              <i
+                className={"fa fa-random"}
+                style={{ fontSize: 20, color: "rgba(51, 55, 70, 0.8)" }}
+              />
             </div>
           </div>
         </div>
