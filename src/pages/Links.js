@@ -24,7 +24,7 @@ export default class Links extends Component {
   componentDidMount() {
     //get recent posts
     axios
-      .get(`http://localhost:8000/get_headlines`, {
+      .get(`https://birds-eye-news-api.herokuapp.com/get_headlines`, {
         Accept: "application/json"
       })
       .then(response => {

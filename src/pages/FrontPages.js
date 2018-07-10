@@ -19,7 +19,7 @@ export default class FrontPages extends Component {
   componentDidMount() {
     //get recent posts
     axios
-      .get(`http://localhost:8000/get_front_pages`, {
+      .get(`https://birds-eye-news-api.herokuapp.com/get_front_pages`, {
         Accept: "application/json"
       })
       .then(response => {
@@ -85,7 +85,7 @@ export default class FrontPages extends Component {
       sitesWide = 5,
       imageContainerWidth = screenWidth;
 
-    let imageWidth = Math.min(screenWidth, 500);
+    let imageWidth = Math.min(screenWidth, 400);
 
     sitesWide = Math.max(Math.floor(screenWidth / imageWidth), 6);
     imageContainerWidth = (imageWidth + siteMargin * 2) * sitesWide;
