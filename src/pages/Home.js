@@ -8,7 +8,7 @@ export default class Home extends Component {
   }
 
   render() {
-    const { view, articles, round } = this.props;
+    const { view, articles, round, screenWidth } = this.props;
     return (
       <div>
         <div style={{ display: view === "frontPages" ? "block" : "none" }}>

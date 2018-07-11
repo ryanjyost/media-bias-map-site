@@ -11,17 +11,12 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  background-color: #fafafa;
-  /* iOS */
-  /*font-family: sans-serif;*/
-  /*font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
+  background-color: #fff;
+  font: 16px/1.2 -apple-system, BlinkMacSystemFont, “Segoe UI”, Roboto, Helvetica, Arial, sans-serif;
+}
 
-  /*!* Android *!*/
-  /*font-family: 'RobotoRegular', 'Droid Sans', sans-serif;*/
-
-  /*!* Windows Phone *!*/
-  /*font-family: 'Segoe UI', Segoe, Tahoma, Geneva, sans-serif;*/
-  font-family: 'Source Sans Pro', sans-serif;
+.siteTitle {
+  font-family: 'Source Sans Pro', sans-serif !important;
 }
 
 @media(min-width: 800px) {

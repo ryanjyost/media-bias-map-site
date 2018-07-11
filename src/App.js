@@ -24,7 +24,7 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      view: "frontPages",
+      view: "headlines",
 
       // data
       articles: [],
@@ -62,11 +62,14 @@ export default class App extends Component {
         console.log("ERROR", error);
         this.setState({ showError: true });
       });
+
     window.addEventListener("scroll", this.handleScroll.bind(this));
+    window.addEventListener(
+      "resize",
+      this.throttle(this.updateDimensions.bind(this), 1000)
+    );
 
-    // document.addEventListener("keydown", this.handleKeyZoom.bind(this), false);
-
-    // setTimeout(this.handleShowMenu.bind(this), 1000);
+    this.updateDimensions();
 
     // google analystics
     this.initReactGA();
@@ -84,29 +87,8 @@ export default class App extends Component {
   updateDimensions() {
     let screenWidth = typeof window !== "undefined" ? window.innerWidth : 0;
     let screenHeight = typeof window !== "undefined" ? window.innerHeight : 0;
-    // let update_height = Math.round(update_width)
 
     this.setState({ screenWidth: screenWidth, screenHeight: screenHeight });
-  }
-
-  handleKeyZoom(e) {
-    if (!this.state.linksView) {
-      if (e.keyCode === 187 && e.metaKey) {
-        let imageSizeFactor = this.state.imageSizeFactor;
-        e.preventDefault();
-        this.setState({
-          imageSizeFactor:
-            imageSizeFactor > 1 ? imageSizeFactor - 0.5 : imageSizeFactor
-        });
-      } else if (e.keyCode === 189 && e.metaKey) {
-        let imageSizeFactor = this.state.imageSizeFactor;
-        e.preventDefault();
-        this.setState({
-          imageSizeFactor:
-            imageSizeFactor < 5 ? imageSizeFactor + 0.5 : imageSizeFactor
-        });
-      }
-    }
   }
 
   handleScroll(e) {
@@ -151,29 +133,14 @@ export default class App extends Component {
   }
 
   render() {
-    const { batch, showScrollTop, showError, showTopBar } = this.state;
+    const {
+      batch,
+      showScrollTop,
+      showError,
+      showTopBar,
+      screenWidth
+    } = this.state;
     let isMenuOpen = false;
-
-    // let updatedTime = null;
-    // if (batch) {
-    //   try {
-    //     updatedTime = moment(batch.created_at);
-    //   } catch (e) {
-    //     updatedTime = null;
-    //   }
-    // }
-    //
-    // let timeAgo = null;
-    // if (updatedTime) {
-    //   timeAgo = Math.abs(updatedTime.diff(moment(), "minutes"));
-    //   if (timeAgo < 60) {
-    //     timeAgo = `${timeAgo} min`;
-    //   } else if (timeAgo < 76) {
-    //     timeAgo = `1 hour`;
-    //   } else {
-    //     timeAgo = `> 1 hour`;
-    //   }
-    // }
 
     const TopBar = () => {
       return (
@@ -183,13 +150,13 @@ export default class App extends Component {
             top: "0px",
             width: "100%",
             // height: showScrollTop ? 40 : 80,
-            backgroundColor: "#fafafa",
+            backgroundColor: "#fff",
             zIndex: 100,
             display: "flex",
             alignItems: "center",
             flexDirection: "column",
             opacity: 1,
-            borderBottom: "2px solid #f2f2f2"
+            borderBottom: "1px solid #d8d8d8"
             // WebkitBoxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px",
             // boxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px"
           }}
@@ -304,12 +271,13 @@ export default class App extends Component {
                 )}
               </Motion>
               <div
+                className={"siteTitle"}
                 style={{
                   textAlign: "center",
                   order: 2,
                   flex: 3,
                   color: "rgb(51, 55, 70)",
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: "bold",
                   letterSpacing: "0.03em"
                 }}
@@ -334,7 +302,7 @@ export default class App extends Component {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "98%",
+              width: "94%",
               margin: "auto",
               padding: "0px 0px 0px 0px"
             }}
@@ -352,13 +320,16 @@ export default class App extends Component {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontWeight: this.state.view === "frontPages" ? "bold" : "light",
+                color:
+                  this.state.view === "frontPages"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
                 borderTop:
                   this.state.view === "frontPages"
                     ? "3px solid #59CFA6"
-                    : "3px solid rgb(51, 55, 70, 0.3)",
-                fontSize: 15,
+                    : "3px solid rgba(51, 55, 70, 0.3)",
+                fontSize: 13,
                 height: 20
               }}
               className={"clickBtn"}
@@ -378,13 +349,16 @@ export default class App extends Component {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontWeight: this.state.view === "headlines" ? "bold" : "light",
+                color:
+                  this.state.view === "headlines"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
                 borderTop:
                   this.state.view === "headlines"
                     ? "3px solid #59CFA6"
-                    : "3px solid rgb(51, 55, 70, 0.3)",
-                fontSize: 15,
+                    : "3px solid rgba(51, 55, 70, 0.3)",
+                fontSize: 13,
                 height: 20
               }}
               className={"clickBtn"}
@@ -404,13 +378,16 @@ export default class App extends Component {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontWeight: this.state.view === "opinion" ? "bold" : "light",
+                color:
+                  this.state.view === "opinion"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
                 borderTop:
                   this.state.view === "opinion"
                     ? "3px solid #59CFA6"
-                    : "3px solid rgb(51, 55, 70, 0.3)",
-                fontSize: 15,
+                    : "3px solid rgba(51, 55, 70, 0.3)",
+                fontSize: 13,
                 height: 20
               }}
               className={"clickBtn"}
@@ -430,13 +407,16 @@ export default class App extends Component {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontWeight: this.state.view === "topics" ? "bold" : "light",
+                color:
+                  this.state.view === "topics"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
                 borderTop:
                   this.state.view === "topics"
                     ? "3px solid #59CFA6"
-                    : "3px solid rgb(51, 55, 70, 0.3)",
-                fontSize: 15,
+                    : "3px solid rgba(51, 55, 70, 0.3)",
+                fontSize: 13,
                 height: 20
               }}
               className={"clickBtn"}
@@ -500,8 +480,9 @@ export default class App extends Component {
               position: "fixed",
               bottom: 0,
               zIndex: 90000,
-              backgroundColor: "#fafafa"
+              backgroundColor: "#fff"
             }}
+            className={"clickBtn"}
           >
             <div
               style={{
@@ -579,126 +560,6 @@ export default class App extends Component {
           >
             <Home {...this.props} {...this.state} />
           </div>
-
-          {/*<Route*/}
-          {/*path={"/"}*/}
-          {/*exact*/}
-          {/*render={props => <Home {...props} view={this.state.view} />}*/}
-          {/*/>*/}
-          {/*<Route path={"/headlines"} exact component={Links} />*/}
-
-          {/*)}*/}
-
-          {/*/!* Last updated *!/*/}
-          {/*<Motion*/}
-          {/*defaultStyle={{ width: 0, textOpacity: 0, divOpacity: 0 }}*/}
-          {/*style={{*/}
-          {/*width: spring(isMenuOpen && timeAgo ? 100 : 0),*/}
-          {/*divOpacity: spring(isMenuOpen && timeAgo ? 1 : 0),*/}
-          {/*textOpacity: spring(showMenuText && timeAgo ? 1 : 0)*/}
-          {/*}}*/}
-          {/*>*/}
-          {/*{style => (*/}
-          {/*<div*/}
-          {/*style={{*/}
-          {/*height: 30,*/}
-          {/*width: 100,*/}
-          {/*zIndex: 10,*/}
-          {/*display: "flex",*/}
-          {/*flexDirection: "column",*/}
-          {/*alignItems: "center",*/}
-          {/*justifyContent: "center",*/}
-          {/*boxShadow: "4px 5px 14px -6px rgba(0,0,0,0.5)",*/}
-          {/*cursor: "pointer",*/}
-          {/*position: "fixed",*/}
-          {/*bottom: "20px",*/}
-          {/*right: "20px",*/}
-          {/*fontSize: 12,*/}
-          {/*backgroundColor: "#f2f2f2",*/}
-          {/*borderRadius: 50,*/}
-          {/*border: "1px solid #f2f2f2",*/}
-          {/*opacity: style.divOpacity*/}
-          {/*}}*/}
-          {/*>*/}
-          {/*<div*/}
-          {/*style={{*/}
-          {/*opacity: style.textOpacity,*/}
-          {/*color: "rgba(0,0,0,0.3)"*/}
-          {/*}}*/}
-          {/*>*/}
-          {/*<i className="far fa-clock" style={{ marginRight: 5 }} />*/}
-          {/*{`${timeAgo} ago`}*/}
-          {/*</div>*/}
-          {/*</div>*/}
-          {/*)}*/}
-          {/*</Motion>*/}
-
-          {/*<Motion*/}
-          {/*defaultStyle={{ grayscale: 0 }}*/}
-          {/*style={{*/}
-          {/*grayscale: spring(isMenuOpen ? 50 : 0)*/}
-          {/*}}*/}
-          {/*>*/}
-          {/*{style => (*/}
-          {/*<div*/}
-          {/*style={{*/}
-          {/*width: isWideView*/}
-          {/*? imageContainerWidth + 10*/}
-          {/*: screenWidth <= imageWidth*/}
-          {/*? imageWidth*/}
-          {/*: screenWidth,*/}
-          {/*margin: "auto",*/}
-          {/*display: !linksView ? "flex" : "none",*/}
-          {/*flexWrap: "wrap",*/}
-          {/*justifyContent: "center",*/}
-          {/*WebkitFilter: `grayscale(${style.grayscale}%)`,*/}
-          {/*filter: `grayscale(${style.grayscale}%)`,*/}
-          {/*paddingTop: 40*/}
-          {/*}}*/}
-          {/*// onMouseDown={e => this.handleMouseDown(e)}*/}
-          {/*onMouseMove={e => {*/}
-          {/*if (isMouseDown) {*/}
-          {/*this.handleMouseMove(e);*/}
-          {/*}*/}
-          {/*}}*/}
-          {/*// onMouseUp={e => this.handleMouseUp(e)}*/}
-          {/*onDoubleClick={() => {*/}
-          {/*this.setState({*/}
-          {/*imageSizeFactor:*/}
-          {/*imageSizeFactor > 1*/}
-          {/*? imageSizeFactor - 0.5*/}
-          {/*: imageSizeFactor*/}
-          {/*});*/}
-          {/*}}*/}
-          {/*// className={"grabbable"}*/}
-          {/*id={"main"}*/}
-          {/*>*/}
-          {/*{this.state.records.length*/}
-          {/*? this.state.records.map((record, i) => {*/}
-          {/*return (*/}
-          {/*<Site*/}
-          {/*key={i}*/}
-          {/*index={i}*/}
-          {/*record={record}*/}
-          {/*siteMargin={siteMargin}*/}
-          {/*imageWidth={imageWidth}*/}
-          {/*/>*/}
-          {/*);*/}
-          {/*})*/}
-          {/*: sites.map((site, i) => {*/}
-          {/*return (*/}
-          {/*<Site*/}
-          {/*key={i}*/}
-          {/*index={i}*/}
-          {/*record={null}*/}
-          {/*siteMargin={siteMargin}*/}
-          {/*imageWidth={imageWidth}*/}
-          {/*/>*/}
-          {/*);*/}
-          {/*})}*/}
-          {/*</div>*/}
-          {/*)}*/}
-          {/*</Motion>*/}
         </div>
       );
     }

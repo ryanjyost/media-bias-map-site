@@ -85,7 +85,7 @@ export default class FrontPages extends Component {
       sitesWide = 5,
       imageContainerWidth = screenWidth;
 
-    let imageWidth = Math.min(screenWidth, 400);
+    let imageWidth = Math.min(screenWidth, 500);
 
     sitesWide = Math.max(Math.floor(screenWidth / imageWidth), 6);
     imageContainerWidth = (imageWidth + siteMargin * 2) * sitesWide;
