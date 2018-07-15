@@ -1,24 +1,16 @@
 import React, { Component } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Link,
-  withRouter
-} from "react-router-dom";
-import { Motion, spring } from "react-motion";
-import shuffle from "shuffle-array";
-import moment from "moment";
-import ReactGA from "react-ga";
-import sites from "./sites";
-
-import Site from "./components/Site";
-
-import FrontPages from "./pages/FrontPages";
-import Links from "./pages/Links";
-import Home from "./pages/Home";
 import axios from "axios/index";
 
-// const TopBarWithRouter = withRouter(props => <TopBar {...props} />);
+import { Motion, spring } from "react-motion";
+import shuffle from "shuffle-array";
+import {
+  mean,
+  median,
+  standardDeviation,
+  zScore
+} from "simple-statistics/index";
+import ReactGA from "react-ga";
+import Home from "./pages/Home";
 
 export default class App extends Component {
   constructor(props) {
@@ -31,9 +23,11 @@ export default class App extends Component {
       round: null,
 
       //other
-      search: "",
+      tag: null,
 
       // UI
+      showOverlayMenu: false,
+      currentOverlay: null,
       showTopBar: true,
       gotLinks: false,
       splashLoaded: false,
@@ -41,13 +35,14 @@ export default class App extends Component {
       showError: false,
       screenWidth: 0,
       screenHeight: 0,
-      showScrollTop: false
+      showScrollTop: false,
+      isMenuOpen: false
     };
   }
 
   componentDidMount() {
     axios
-      .get(`https://birds-eye-news-api.herokuapp.com/get_headlines`, {
+      .get(`http://localhost:8000/get_headlines`, {
         Accept: "application/json"
       })
       .then(response => {
@@ -63,11 +58,12 @@ export default class App extends Component {
         this.setState({ showError: true });
       });
 
-    window.addEventListener("scroll", this.handleScroll.bind(this));
     window.addEventListener(
       "resize",
       this.throttle(this.updateDimensions.bind(this), 1000)
     );
+
+    window.addEventListener("scroll", this.handleScroll.bind(this));
 
     this.updateDimensions();
 
@@ -92,11 +88,36 @@ export default class App extends Component {
   }
 
   handleScroll(e) {
+    let top = e.target.scrollTop;
     if (window.scrollY > 300 && !this.state.showScrollTop) {
       this.setState({ showScrollTop: true, showTopBar: false });
-    } else if (window.scrollY < 301 && this.state.showScrollTop) {
+    } else if (
+      window.scrollY < 301 &&
+      this.state.showScrollTop &&
+      !this.state.showOverlayMenu
+    ) {
       this.setState({ showScrollTop: false, showTopBar: true });
     }
+  }
+
+  handleSearch(text) {
+    this.setState({ tag: text, showOverlayMenu: false });
+    // setTimeout(
+    //   function() {
+    //     this.setState({ pulse: false });
+    //   }.bind(this),
+    //   50
+    // );
+
+    this.reportSearchToGA(text);
+  }
+
+  reportSearchToGA(text) {
+    ReactGA.event({
+      category: "Input",
+      action: "Searched headlines",
+      value: text
+    });
   }
 
   /**
@@ -138,9 +159,10 @@ export default class App extends Component {
       showScrollTop,
       showError,
       showTopBar,
-      screenWidth
+      showOverlayMenu,
+      screenWidth,
+      isMenuOpen
     } = this.state;
-    let isMenuOpen = false;
 
     const TopBar = () => {
       return (
@@ -151,7 +173,7 @@ export default class App extends Component {
             width: "100%",
             // height: showScrollTop ? 40 : 80,
             backgroundColor: "#fff",
-            zIndex: 100,
+            zIndex: 3,
             display: "flex",
             alignItems: "center",
             flexDirection: "column",
@@ -167,7 +189,7 @@ export default class App extends Component {
                 width: "100%",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "flex-end",
+                justifyContent: "center",
                 fontSize: 13,
                 height: 40,
                 flexFlow: "row wrap",
@@ -205,16 +227,16 @@ export default class App extends Component {
                       order: 1,
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
+                      justifyContent: "flex-start",
                       cursor: "pointer",
                       position: "relative",
-                      marginLeft: 10,
-                      opacity: 0,
+                      paddingLeft: 20,
+                      opacity: 1,
                       width: 100
                     }}
                     onClick={() =>
                       this.setState({
-                        menuOpen: isMenuOpen ? null : "main"
+                        isMenuOpen: !isMenuOpen
                       })
                     }
                   >
@@ -231,7 +253,7 @@ export default class App extends Component {
                           backgroundColor: isMenuOpen
                             ? "rgba(51, 55, 70, 0.7)"
                             : "rgba(51, 55, 70, 0.7)",
-                          zIndex: 20,
+                          zIndex: 1,
                           position: "absolute",
                           top: isMenuOpen ? "0px" : `${-style.topBarTop}px`,
                           // marginTop: style.topBarMargin,
@@ -246,7 +268,7 @@ export default class App extends Component {
                           backgroundColor: isMenuOpen
                             ? "rgba(51, 55, 70, 0.7)"
                             : "rgba(51, 55, 70, 0.7)",
-                          zIndex: 20,
+                          zIndex: 1,
                           borderRadius: 9999
                         }}
                       />
@@ -257,7 +279,7 @@ export default class App extends Component {
                           backgroundColor: isMenuOpen
                             ? "rgba(51, 55, 70, 0.7)"
                             : "rgba(51, 55, 70, 0.7)",
-                          zIndex: 20,
+                          zIndex: 1,
                           // borderRadius: 30,
                           // marginBottom: isMenuOpen ? 5 : 0,
                           top: isMenuOpen ? "0px" : `${style.topBarTop}px`,
@@ -289,10 +311,14 @@ export default class App extends Component {
                   textAlign: "right",
                   order: 3,
                   color: "rgba(51, 55, 70, 0)",
-                  width: 100
+                  width: 100,
+                  paddingRight: 20
                 }}
               >
-                How It Works
+                <i
+                  className={"fa fa-cog"}
+                  style={{ color: "rgba(51, 55, 70, 0.7)", fontSize: 14 }}
+                />
               </div>
             </div>
           )}
@@ -302,9 +328,147 @@ export default class App extends Component {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "94%",
+              width: "100%",
+              margin: "auto",
+              padding: "0px 0px 0px 0px",
+              borderTop: "2px solid #f2f2f2"
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                padding: "0px 10px 0px 15px",
+                height: 35,
+                width: "100%",
+                cursor: "pointer",
+                fontSize: 10,
+                flex: 0.5,
+                textAlign: "center"
+              }}
+              onClick={() =>
+                this.setState({ showOverlayMenu: !this.state.showOverlayMenu })
+              }
+            >
+              <div
+                style={{
+                  borderBottom: "2px solid rgba(89, 207, 166, 1)",
+                  paddingBottom: 2,
+                  paddingRight: 5
+                }}
+              >
+                {" "}
+                <i
+                  className="fas fa-angle-right"
+                  style={{ marginRight: 5, color: "rgba(51, 55, 70, 0.2)" }}
+                />{" "}
+                {this.state.tag ? `${this.state.tag}` : "All Topics"}
+              </div>
+            </div>
+            <span style={{ color: "rgba(0,0,0,0.5)", fontSize: 10 }}>from</span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                padding: "0px 10px 0px 15px",
+                height: 35,
+                width: "100%",
+                cursor: "pointer",
+                fontSize: 10,
+                flex: 0.5,
+                textAlign: "center"
+                // borderLeft: "1px solid #d8d8d8"
+              }}
+              onClick={() =>
+                this.setState({
+                  showOverlayMenu: !this.state.showOverlayMenu,
+                  currentOverlay: "tags"
+                })
+              }
+            >
+              <div
+                style={{
+                  borderBottom: "2px solid rgba(89, 207, 166, 1)",
+                  paddingBottom: 2,
+                  paddingRight: 5
+                }}
+              >
+                <i
+                  className="fas fa-angle-right"
+                  style={{
+                    marginRight: 5,
+                    color: "rgba(51, 55, 70, 0.2)",
+                    transform: this.state.currentOverlay === "tags"
+                  }}
+                />{" "}
+                All Sources
+              </div>
+            </div>
+            <div
+              className="clickBtn"
+              style={{
+                height: 35,
+                borderLeft: "1px solid #e5e5e5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 60
+                // flex: 0.2
+              }}
+              onClick={() => this.setState({ showOverlayMenu: false })}
+            >
+              {this.state.showOverlayMenu ? (
+                <div
+                  style={{
+                    transform: "rotate(45deg)",
+                    fontSize: 30,
+                    marginLeft: 5,
+                    marginBottom: 4,
+                    color: "rgba(51, 55, 70, 0.5)"
+                  }}
+                >
+                  +
+                </div>
+              ) : (
+                <i
+                  className={"fa fa-random"}
+                  style={{ fontSize: 16, color: "rgba(51, 55, 70, 0.8)" }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const BottomMenu = () => {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            margin: "auto",
+            padding: "0px 0px 0px 0px",
+            borderTop: "1px solid #f2f2f2",
+            position: "fixed",
+            bottom: 0,
+            zIndex: 1,
+            backgroundColor: "#fff"
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
               margin: "auto",
               padding: "0px 0px 0px 0px"
+              // borderTop: "1px solid #d8d8d8"
             }}
           >
             <div
@@ -322,13 +486,11 @@ export default class App extends Component {
                 justifyContent: "center",
                 color:
                   this.state.view === "frontPages"
-                    ? "rgba(51, 55, 70, 1)"
+                    ? "rgba(255, 255, 255, 1)"
                     : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
-                borderTop:
-                  this.state.view === "frontPages"
-                    ? "3px solid #59CFA6"
-                    : "3px solid rgba(51, 55, 70, 0.3)",
+                backgroundColor:
+                  this.state.view === "frontPages" ? "#59CFA6" : "#fff",
                 fontSize: 13,
                 height: 20
               }}
@@ -351,13 +513,11 @@ export default class App extends Component {
                 justifyContent: "center",
                 color:
                   this.state.view === "headlines"
-                    ? "rgba(51, 55, 70, 1)"
+                    ? "rgba(255, 255, 255, 1)"
                     : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
-                borderTop:
-                  this.state.view === "headlines"
-                    ? "3px solid #59CFA6"
-                    : "3px solid rgba(51, 55, 70, 0.3)",
+                backgroundColor:
+                  this.state.view === "headlines" ? "#59CFA6" : "#fff",
                 fontSize: 13,
                 height: 20
               }}
@@ -380,13 +540,11 @@ export default class App extends Component {
                 justifyContent: "center",
                 color:
                   this.state.view === "opinion"
-                    ? "rgba(51, 55, 70, 1)"
+                    ? "rgba(255, 255, 255, 1)"
                     : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
-                borderTop:
-                  this.state.view === "opinion"
-                    ? "3px solid #59CFA6"
-                    : "3px solid rgba(51, 55, 70, 0.3)",
+                backgroundColor:
+                  this.state.view === "opinion" ? "#59CFA6" : "#fff",
                 fontSize: 13,
                 height: 20
               }}
@@ -409,13 +567,11 @@ export default class App extends Component {
                 justifyContent: "center",
                 color:
                   this.state.view === "topics"
-                    ? "rgba(51, 55, 70, 1)"
+                    ? "rgba(255, 255, 255, 1)"
                     : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
-                borderTop:
-                  this.state.view === "topics"
-                    ? "3px solid #59CFA6"
-                    : "3px solid rgba(51, 55, 70, 0.3)",
+                backgroundColor:
+                  this.state.view === "topics" ? "#59CFA6" : "#fff",
                 fontSize: 13,
                 height: 20
               }}
@@ -428,25 +584,144 @@ export default class App extends Component {
       );
     };
 
-    const Topics = () => {
-      if (this.state.view === "frontPages") {
-        return null;
-      } else {
-        return (
+    const Tags = ({ round }) => {
+      const tags = round ? round.tags.slice(0, 20) : [];
+      const tagCounts = tags.length
+        ? tags.map(tag => {
+            return tag.tf;
+          })
+        : [];
+      const tagMean = tagCounts.length ? mean(tagCounts) : null;
+      const tagSD = tagMean ? standardDeviation(tagCounts) : null;
+      return (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 10,
+            position: "relative",
+            padding: "50px 10px"
+          }}
+        >
           <div
             style={{
-              height: 50,
-              backgroundColor: "rgba(51, 55, 70, 1)",
-              position: "fixed",
-              bottom: 0,
-              zIndex: 90000,
-              width: "100%"
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "flex-end",
+              alignItems: "baseline",
+              paddingLeft: 20
             }}
           >
-            hey
+            {tags.length > 0
+              ? tags.map((tag, i) => {
+                  let z = this.state.round ? zScore(tag.tf, tagMean, tagSD) : 1;
+                  let factor = 1 + z;
+                  return (
+                    <span
+                      key={i}
+                      style={{
+                        fontSize: median([Math.floor(30 * factor), 50, 16]),
+                        margin: 5,
+                        padding: "4px 9px",
+                        borderRadius: 3,
+                        backgroundColor:
+                          tag.term === this.props.search
+                            ? "rgba(51, 55, 70, 1)"
+                            : "rgba(51, 55, 70, 0.7)",
+                        color: "rgba(255,255,255,0.95)",
+                        cursor: "pointer",
+                        textAlign: "right"
+                      }}
+                      onClick={() => this.handleSearch(tag.term)}
+                    >
+                      {tag.term}
+                    </span>
+                  );
+                })
+              : null}
           </div>
-        );
-      }
+
+          {/* SEARCH */}
+          {/*<div*/}
+          {/*style={{*/}
+          {/*display: "flex",*/}
+          {/*alignItems: "center",*/}
+          {/*border: filterActive*/}
+          {/*? "1px solid rgba(51, 55, 70, 1)"*/}
+          {/*: "1px solid rgba(51, 55, 70, 0.3)",*/}
+          {/*padding: "0px 10px",*/}
+          {/*marginTop: 10,*/}
+          {/*marginBottom: 10,*/}
+          {/*borderRadius: 9999,*/}
+          {/*color: filterActive*/}
+          {/*? "rgba(51, 55, 70, 1)"*/}
+          {/*: "rgba(51, 55, 70, 0.3)"*/}
+          {/*}}*/}
+          {/*className={"searchInput"}*/}
+          {/*>*/}
+          {/*<i*/}
+          {/*className={"fa fa-search"}*/}
+          {/*style={{*/}
+          {/*color: filterActive*/}
+          {/*? "rgba(51, 55, 70, 1)"*/}
+          {/*: "rgba(51, 55, 70, 0.3)"*/}
+          {/*}}*/}
+          {/*/>*/}
+          {/*<input*/}
+          {/*type={"text"}*/}
+          {/*value={this.props.search}*/}
+          {/*placeholder={"Search headlines"}*/}
+          {/*onChange={e => this.handleSearch(e.target.value.toLowerCase())}*/}
+          {/*onFocus={() => this.setState({ filterActive: true })}*/}
+          {/*onBlur={() => this.setState({ filterActive: false })}*/}
+          {/*style={{*/}
+          {/*width: "90%",*/}
+          {/*maxWidth: 300,*/}
+          {/*borderRadius: 3,*/}
+          {/*border: "1px solid transparent",*/}
+          {/*padding: "5px 10px",*/}
+          {/*fontSize: 16,*/}
+          {/*fontWeight: "400",*/}
+          {/*textAlign: "left",*/}
+          {/*letterSpacing: "0.03em"*/}
+          {/*}}*/}
+          {/*/>*/}
+          {/*<i*/}
+          {/*className={"fas fa-times"}*/}
+          {/*style={{*/}
+          {/*color:*/}
+          {/*search.length > 0*/}
+          {/*? "rgba(51, 55, 70, 0.8)"*/}
+          {/*: "rgba(51, 55, 70, 0)",*/}
+          {/*cursor: "pointer"*/}
+          {/*}}*/}
+          {/*onClick={() => this.handleSearch("")}*/}
+          {/*/>*/}
+          {/*</div>*/}
+        </div>
+      );
+    };
+
+    const OverlayMenu = () => {
+      return (
+        <div
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.98)",
+            zIndex: 2,
+            height: "100vh",
+            width: "100%",
+            display: "flex",
+            position: "fixed",
+            top: 0,
+            paddingTop: 60,
+            overflow: "auto"
+          }}
+        >
+          <Tags round={this.state.round} />
+        </div>
+      );
     };
 
     if (showError && false) {
@@ -464,91 +739,44 @@ export default class App extends Component {
       );
     } else {
       return (
-        <div style={{ height: "100vh" }}>
+        <div
+          style={{
+            height: "100vh",
+            overflow: showOverlayMenu ? "hidden" : ""
+          }}
+        >
           <TopBar />
+          {showOverlayMenu ? <OverlayMenu {...this.props} /> : null}
 
           {/* search menu */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-              margin: "auto",
-              padding: "0px 0px 0px 0px",
-              borderTop: "2px solid #f2f2f2",
-              position: "fixed",
-              bottom: 0,
-              zIndex: 90000,
-              backgroundColor: "#fff"
-            }}
-            className={"clickBtn"}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                padding: "0px 10px 0px 15px",
-                height: 50
-              }}
-            >
-              <div>
-                <i
-                  className={"fa fa-chevron-right"}
-                  style={{
-                    marginRight: 10,
-                    fontSize: 18,
-                    color: "rgba(51, 55, 70, 0.5)"
-                  }}
-                />
-              </div>
-              All Sources
-            </div>
-            <div
-              className="clickBtn"
-              style={{
-                height: 50,
-                borderLeft: "1px solid #e5e5e5",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 80
-              }}
-            >
-              <i
-                className={"fa fa-random"}
-                style={{ fontSize: 20, color: "rgba(51, 55, 70, 0.8)" }}
-              />
-            </div>
-          </div>
+          <BottomMenu />
 
           {/*<Topics />*/}
 
           {/* scroll top */}
-          <div
-            style={{
-              position: "fixed",
-              bottom: "20px",
-              left: "20px",
-              display: showScrollTop ? "flex" : "none",
-              opacity: showScrollTop ? 0.8 : 0,
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 50,
-              height: 30,
-              width: 30,
-              borderRadius: 3,
-              backgroundColor: "rgba(51, 55, 70, 1)",
-              color: "rgba(255,255,255,1)",
-              cursor: "pointer"
-            }}
-            className={"disableTextSelect"}
-            onClick={() => this.scrollTop()}
-          >
-            <i className={"fas fa-arrow-up"} />
-          </div>
+          {/*<div*/}
+          {/*style={{*/}
+          {/*position: "fixed",*/}
+          {/*top: "60px",*/}
+          {/*left: "10px",*/}
+          {/*display: showScrollTop ? "flex" : "none",*/}
+          {/*opacity: showScrollTop ? 0.8 : 0,*/}
+          {/*flexDirection: "column",*/}
+          {/*alignItems: "center",*/}
+          {/*justifyContent: "center",*/}
+          {/*zIndex: 1,*/}
+          {/*height: 30,*/}
+          {/*width: 30,*/}
+          {/*borderRadius: 3,*/}
+          {/*backgroundColor: "rgba(51, 55, 70, 1)",*/}
+          {/*color: "rgba(255,255,255,1)",*/}
+          {/*cursor: "pointer"*/}
+          {/*}}*/}
+          {/*className={"disableTextSelect"}*/}
+          {/*onClick={() => this.scrollTop()}*/}
+          {/*>*/}
+          {/*<i className={"fas fa-arrow-up"} />*/}
+          {/*</div>*/}
 
           <div
             style={

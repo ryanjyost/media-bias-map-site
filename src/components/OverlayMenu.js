@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { mean, median, standardDeviation } from "simple-statistics/index";
 
 const Tags = ({ round }) => {
   const tags = round.tags.slice(0, 20);
@@ -13,7 +12,7 @@ const Tags = ({ round }) => {
       style={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "flex-end",
+        alignItems: "center",
         justifyContent: "flex-end",
         marginBottom: 10
       }}
@@ -121,7 +120,7 @@ const OverlayMenu = () => {
     <div
       style={{
         backgroundColor: "red",
-        zIndex: 1000000,
+        zIndex: 1,
         height: "100vh",
         width: "100%"
       }}

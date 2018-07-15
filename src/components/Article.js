@@ -78,27 +78,29 @@ export default class Article extends Component {
               {entities.decode(article.title)}
             </h3>
           </div>
-          <div
-            style={{
-              display: "flex"
-            }}
-          >
+          {article.description.length > 0 ? (
             <div
-              className={"desc"}
               style={{
-                fontSize: 14,
-                overflow: "hidden",
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                color: "rgba(0, 0, 0, .60)",
-                lineHeight: 1.4,
-                letterSpacing: "0.01em"
+                display: "flex"
               }}
             >
-              {entities.decode(article.description)}
+              <div
+                className={"desc"}
+                style={{
+                  fontSize: 14,
+                  overflow: "hidden",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  color: "rgba(0, 0, 0, .60)",
+                  lineHeight: 1.4,
+                  letterSpacing: "0.01em"
+                }}
+              >
+                {entities.decode(article.description)}
+              </div>
             </div>
-          </div>
+          ) : null}
           {hideSource ? null : (
             <div
               className={"source"}

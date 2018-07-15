@@ -90,7 +90,7 @@ export default class Links extends Component {
               justifyContent: "center"
             }}
           >
-            <Loader type="Oval" color="#59CFA6" height="100" width="100" />
+            <Loader type="TailSpin" color="#59CFA6" height="100" width="100" />
           </div>
         </div>
       );
