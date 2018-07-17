@@ -103,11 +103,12 @@ export default class Article extends Component {
           ) : null}
           {hideSource ? null : (
             <div
-              className={"source"}
+              // className={"source"}
               style={{
                 textAlign: "right",
                 fontSize: 12,
-                marginTop: 10
+                marginTop: 10,
+                color: "rgba(51, 55, 70, 0.7)"
               }}
             >
               {article.site.title}

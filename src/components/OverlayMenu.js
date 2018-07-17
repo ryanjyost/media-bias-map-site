@@ -121,7 +121,6 @@ const OverlayMenu = () => {
       style={{
         backgroundColor: "red",
         zIndex: 1,
-        height: "100vh",
         width: "100%"
       }}
     >

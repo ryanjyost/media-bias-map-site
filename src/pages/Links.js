@@ -13,32 +13,8 @@ export default class Links extends Component {
     super(props);
   }
 
-  componentDidMount() {
-    //get recent posts
-  }
-
-  // handleSearch(text) {
-  //   this.setState({ search: text });
-  //   // setTimeout(
-  //   //   function() {
-  //   //     this.setState({ pulse: false });
-  //   //   }.bind(this),
-  //   //   50
-  //   // );
-  //
-  //   this.reportSearchToGA(text);
-  // }
-
-  // reportSearchToGA(text) {
-  //   ReactGA.event({
-  //     category: "Input",
-  //     action: "Searched headlines",
-  //     value: text
-  //   });
-  // }
-
   render() {
-    const { search, round, articles, tag, screenWidth } = this.props;
+    const { search, round, articles, tag, screenWidth, source } = this.props;
 
     // const filteredLinks = allArticles.filter(item => {
     //   let allText = item.title + " " + item.description;
@@ -53,22 +29,26 @@ export default class Links extends Component {
     //   );
     // });
 
-    let filteredArticles = articles.filter(item => {
-      let allText = item.title + " " + item.description;
-      let cleanText = item.title
-        .toLowerCase()
-        .replace(/[,\/#!$%\^&\*;:{}=_`~()]/g, "");
+    let filteredArticles = articles
+      .filter(item => {
+        let allText = item.title + " " + item.description;
+        let cleanText = item.title
+          .toLowerCase()
+          .replace(/[,\/#!$%\^&\*;:{}=_`~()]/g, "");
 
-      let titleWithoutHyphens = cleanText.replace("-", " ");
+        let titleWithoutHyphens = cleanText.replace("-", " ");
 
-      if (search) {
-        return cleanText.includes(
-          search.toLowerCase().replace(/[,\/#!$%\^&\*;:{}=_`~()]/g, "")
-        );
-      } else {
-        return true;
-      }
-    });
+        if (tag) {
+          return cleanText.includes(
+            tag.toLowerCase().replace(/[,\/#!$%\^&\*;:{}=_`~()]/g, "")
+          );
+        } else if (source) {
+          return item.siteName === source.name;
+        } else {
+          return true;
+        }
+      })
+      .slice(0, 50);
 
     if (!this.props.gotLinks) {
       return (
@@ -107,60 +87,76 @@ export default class Links extends Component {
         >
           <div
             style={{
-              padding: "80px 0% 20px 0%",
+              padding: "110px 0% 100px 0%",
               maxWidth: 700,
               width: "100%",
               margin: "auto"
             }}
           >
-            <Motion
-              defaultStyle={{ pulseOpacity: 0 }}
-              style={{ pulseOpacity: spring(this.props.pulse ? 0.5 : 0) }}
+            <div
+              style={{
+                padding: "10px 0px",
+                borderRadius: 5,
+                minHeight: "100vh"
+              }}
             >
-              {style => (
+              {filteredArticles.length > 0 ? (
+                filteredArticles.map((link, i) => {
+                  return (
+                    <Article
+                      article={link}
+                      key={i}
+                      i={i}
+                      hideSource={this.props.hideSources}
+                      screenWidth={screenWidth}
+                    />
+                  );
+                })
+              ) : (
                 <div
                   style={{
-                    backgroundColor: `rgba(89, 207, 166, ${
-                      style.pulseOpacity
-                    })`,
-                    padding: "10px 0px",
-                    borderRadius: 5
+                    display: "flex",
+                    padding: "5px 10px",
+                    margin: "20px 5px",
+                    flexDirection: "column",
+                    height: "100vh",
+                    alignItems: "center"
                   }}
                 >
-                  {filteredArticles.length > 0 ? (
-                    filteredArticles.map((link, i) => {
-                      return (
-                        <Article
-                          article={link}
-                          key={i}
-                          i={i}
-                          hideSource={this.props.hideSources}
-                          screenWidth={screenWidth}
-                        />
-                      );
-                    })
-                  ) : (
-                    <div
-                      style={{
-                        display: "flex",
-                        padding: "5px 10px",
-                        margin: 5,
-                        flexDirection: "column"
-                      }}
-                    >
-                      <h4
-                        style={{
-                          textAlign: "center",
-                          color: "rgba(0,0,0,0.7)"
-                        }}
-                      >
-                        We couldn't find any headlines that match your search
-                      </h4>
-                    </div>
-                  )}
+                  <i
+                    className={"fa fa-frown"}
+                    style={{ fontSize: 40, color: "rgba(51, 55, 70, 0.8)" }}
+                  />
+                  <h4
+                    style={{
+                      textAlign: "center",
+                      color: "rgba(0,0,0,0.5)",
+                      lineHeight: 1.3
+                    }}
+                  >
+                    {`Our database doesn't seem to have any ${
+                      this.props.view === "headlines"
+                        ? "headlines"
+                        : "opinion pieces"
+                    } ${this.props.tag ? "containing the word" : "from"} ${
+                      this.props.tag ? this.props.tag : this.props.source.title
+                    }...`}
+                    <br />
+                  </h4>
+                  <h4
+                    style={{
+                      textAlign: "center",
+                      color: "rgba(0,0,0,0.7)",
+                      lineHeight: 1.3
+                    }}
+                  >
+                    Email me to complain so I know to make newsbie.io better!
+                  </h4>
+
+                  <a href={"mailto:ryanjyost@gmail.com"}>ryanjyost@gmail.com</a>
                 </div>
               )}
-            </Motion>
+            </div>
           </div>
         </div>
       );

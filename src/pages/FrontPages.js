@@ -100,7 +100,7 @@ export default class FrontPages extends Component {
           justifyContent: "center",
           // WebkitFilter: `grayscale(${style.grayscale}%)`,
           // filter: `grayscale(${style.grayscale}%)`,
-          paddingTop: 80
+          paddingTop: 35
         }}
         // onDoubleClick={() => {
         //   this.setState({

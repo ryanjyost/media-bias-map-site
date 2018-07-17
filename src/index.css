@@ -66,7 +66,7 @@ input:active, input:focus {
   color: rgba(0,0,0,0.8);
 }
 
-.source, .desc {
+.desc {
   color: rgba(0,0,0,0.6);
 }
 
