@@ -150,7 +150,8 @@ export default class Links extends Component {
                       lineHeight: 1.3
                     }}
                   >
-                    Email me to complain so I know to make newsbie.io better!
+                    Email me to complain so I know to make Bird's Eye News
+                    better!
                   </h4>
 
                   <a href={"mailto:ryanjyost@gmail.com"}>ryanjyost@gmail.com</a>

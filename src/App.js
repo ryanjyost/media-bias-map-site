@@ -228,6 +228,7 @@ export default class App extends Component {
             onClick={e => {
               if (!this.state.showOverlayMenu) {
                 this.saveScrollPosition(window.scrollY);
+                this.scrollTop();
                 this.setState({
                   showOverlayMenu: "tags"
                 });
@@ -366,6 +367,7 @@ export default class App extends Component {
             onClick={() => {
               if (!this.state.showOverlayMenu) {
                 this.saveScrollPosition(window.scrollY);
+                this.scrollTop();
                 this.setState({
                   showOverlayMenu: "sources"
                 });
@@ -614,7 +616,7 @@ export default class App extends Component {
                   order: 2,
                   flex: 3,
                   color: "rgb(51, 55, 70)",
-                  fontSize: 20,
+                  fontSize: 15,
                   fontWeight: "bold",
                   letterSpacing: "0.03em",
                   display: "flex",
@@ -622,9 +624,7 @@ export default class App extends Component {
                   justifyContent: "center"
                 }}
               >
-                newsbie<span style={{ color: "rgba(51, 55, 70, 0.5)" }}>
-                  .io
-                </span>
+                Bird's Eye News
               </div>
               <div
                 style={{
@@ -646,7 +646,11 @@ export default class App extends Component {
                       ? `fas fa-times`
                       : `fas fa-info-circle`
                   }
-                  style={{ color: "rgba(51, 55, 70, 0.4)", fontSize: 14 }}
+                  style={{
+                    color: "rgba(51, 55, 70, 0.4)",
+                    fontSize: 14,
+                    cursor: "pointer"
+                  }}
                 />
               </div>
             </div>
@@ -706,10 +710,12 @@ export default class App extends Component {
                 color:
                   this.state.view === "frontPages"
                     ? "rgba(255, 255, 255, 1)"
-                    : "rgba(51, 55, 70, 0.7)",
+                    : "rgba(51, 55, 70, 0.9)",
                 padding: "10px 15px 10px 15px",
                 backgroundColor:
-                  this.state.view === "frontPages" ? "#59CFA6" : "#fff",
+                  this.state.view === "frontPages"
+                    ? "rgba(51, 55, 70, 0.9)"
+                    : "#fff",
                 fontSize: 13,
                 height: 20
               }}
@@ -736,7 +742,9 @@ export default class App extends Component {
                     : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
                 backgroundColor:
-                  this.state.view === "headlines" ? "#59CFA6" : "#fff",
+                  this.state.view === "headlines"
+                    ? "rgba(51, 55, 70, 0.9)"
+                    : "#fff",
                 fontSize: 13,
                 height: 20
               }}
@@ -763,7 +771,9 @@ export default class App extends Component {
                     : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
                 backgroundColor:
-                  this.state.view === "opinion" ? "#59CFA6" : "#fff",
+                  this.state.view === "opinion"
+                    ? "rgba(51, 55, 70, 0.9)"
+                    : "#fff",
                 fontSize: 13,
                 height: 20
               }}
@@ -832,23 +842,25 @@ export default class App extends Component {
               margin: "10px 0px"
             }}
           >
-            <div
-              style={{
-                textAlign: "center",
-                backgroundColor: "#f2f2f2",
-                padding: "10px 20px",
-                marginLeft: 10,
-                borderRadius: 5,
-                borderColor: "1px solid #e5e5e5",
-                cursor: "pointer"
-              }}
-              onClick={() => {
-                this.setState({ tag: null, showOverlayMenu: false });
-                this.scrollTop();
-              }}
-            >
-              Clear Filter
-            </div>
+            {this.state.tag ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  backgroundColor: "#f2f2f2",
+                  padding: "10px 20px",
+                  marginLeft: 10,
+                  borderRadius: 5,
+                  borderColor: "1px solid #e5e5e5",
+                  cursor: "pointer"
+                }}
+                onClick={() => {
+                  this.setState({ tag: null, showOverlayMenu: false });
+                  this.scrollTop();
+                }}
+              >
+                Clear Filter
+              </div>
+            ) : null}
           </div>
           <div
             style={{
@@ -898,28 +910,27 @@ export default class App extends Component {
             // display: "flex",
             // flexDirection: "column",
             // alignItems: "baseline",
-            position: "relative",
-            padding: "70px 0px",
-            width: "100%",
-            overflow: "auto",
-            height: this.state.sources.length * 55
+            // position: "relative",
+            padding: "70px 0px"
+            // width: "100%"
           }}
         >
           {this.state.source ? (
             <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                width: "100%",
-                margin: "10px 0px"
-              }}
+              style={
+                {
+                  // display: "flex",
+                  // alignItems: "center",
+                  // justifyContent: "flex-start",
+                  // margin: "10px 0px"
+                }
+              }
             >
               <div
                 style={{
                   textAlign: "center",
                   backgroundColor: "#f2f2f2",
-                  padding: "10px 20px",
+                  // padding: "10px 20px",
                   marginLeft: 10,
                   borderRadius: 5,
                   borderColor: "1px solid #e5e5e5",
@@ -942,7 +953,7 @@ export default class App extends Component {
                   textAlign: "center",
                   height: 40,
                   borderBottom: "1px solid #e5e5e5",
-                  width: "100%",
+                  // width: "100%",
                   display: "flex",
                   alignItems: "center",
                   padding: "0px 20px"
@@ -1005,18 +1016,19 @@ export default class App extends Component {
                 width: "100%"
               }}
             >
-              newsbie<span style={{ color: "rgba(255, 255, 255, 0.7)" }}>
-                .io
-              </span>
+              Bird's Eye News
             </div>
             <h4
               style={{
                 textAlign: "center",
                 color: "rgba(255, 255, 255, 0.9)",
-                marginTop: 10
+                marginTop: 10,
+                fontWeight: "normal",
+                lineHeight: "1.5em"
               }}
             >
-              A better, healthier way to stay informed.
+              A balanced, healthy way to stay informed and <br />
+              <strong>fly above the bullshit.</strong>
             </h4>
             <hr
               style={{
@@ -1057,7 +1069,7 @@ export default class App extends Component {
               <p style={{ textAlign: "center" }}>
                 <strong>
                   Shoot me a direct email with any questions, ideas, feedback,
-                  thoughts or harsh truths you have about newsbie.io.
+                  thoughts or harsh truths you have about it.
                 </strong>
               </p>
               <p>
@@ -1078,15 +1090,15 @@ export default class App extends Component {
       return (
         <div
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.98)",
-            zIndex: 2,
-            width: "100%",
-            display: "flex",
-            position: "fixed",
-            top: 0,
-            paddingTop: 60,
-            overflow: "auto",
-            height: this.state.sources.length * 30 + 140
+            // backgroundColor: "rgba(255, 255, 255, 0.98)",
+            // zIndex: 2,
+            // width: "100%",
+            // display: "flex",
+            // position: "fixed",
+            // top: 0,
+            paddingTop: 60
+            // overflow: "auto",
+            // height: this.state.sources.length * 30 + 140
           }}
         >
           {this.state.showOverlayMenu === "tags" ? (
@@ -1113,44 +1125,8 @@ export default class App extends Component {
       );
     } else {
       return (
-        <div
-          style={{
-            // height: "100vh",
-            position: showOverlayMenu ? "fixed" : "relative"
-          }}
-        >
+        <div>
           <TopBarMobile />
-          {showOverlayMenu ? <OverlayMenu {...this.props} /> : null}
-
-          {/* search menu */}
-          <BottomMenu />
-
-          {/*<Topics />*/}
-
-          {/* scroll top */}
-          {/*<div*/}
-          {/*style={{*/}
-          {/*position: "fixed",*/}
-          {/*top: "60px",*/}
-          {/*left: "10px",*/}
-          {/*display: showScrollTop ? "flex" : "none",*/}
-          {/*opacity: showScrollTop ? 0.8 : 0,*/}
-          {/*flexDirection: "column",*/}
-          {/*alignItems: "center",*/}
-          {/*justifyContent: "center",*/}
-          {/*zIndex: 1,*/}
-          {/*height: 30,*/}
-          {/*width: 30,*/}
-          {/*borderRadius: 3,*/}
-          {/*backgroundColor: "rgba(51, 55, 70, 1)",*/}
-          {/*color: "rgba(255,255,255,1)",*/}
-          {/*cursor: "pointer"*/}
-          {/*}}*/}
-          {/*className={"disableTextSelect"}*/}
-          {/*onClick={() => this.scrollTop()}*/}
-          {/*>*/}
-          {/*<i className={"fas fa-arrow-up"} />*/}
-          {/*</div>*/}
 
           <div
             style={
@@ -1160,8 +1136,16 @@ export default class App extends Component {
               }
             }
           >
-            <Home {...this.props} {...this.state} />
+            {" "}
+            {showOverlayMenu ? (
+              <OverlayMenu {...this.props} />
+            ) : (
+              <Home {...this.props} {...this.state} />
+            )}
           </div>
+
+          {/* search menu */}
+          {showOverlayMenu ? null : <BottomMenu />}
         </div>
       );
     }
