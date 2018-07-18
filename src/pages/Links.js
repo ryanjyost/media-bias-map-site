@@ -163,7 +163,9 @@ export default class Links extends Component {
                     better!
                   </h4>
 
-                  <a href={"mailto:ryanjyost@gmail.com"}>ryanjyost@gmail.com</a>
+                  <a href={"mailto:ryan@birdseyenews.org"}>
+                    ryan@birdseyenews.org
+                  </a>
                 </div>
               )}
             </div>

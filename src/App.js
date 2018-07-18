@@ -1379,14 +1379,14 @@ export default class App extends Component {
               {/*}}*/}
               {/*/>*/}
               <img
-                src={"/headshot.jpg"}
+                src={"https://d1dzf0mjm4jp11.cloudfront.net/headshot.jpg"}
                 style={{
                   borderRadius: 50,
                   border: "2px solid rgba(255, 255, 255, 0.5)",
                   marginBottom: 20
                 }}
-                height={50}
-                width={50}
+                height={60}
+                width={60}
               />
               <p style={{ margin: 5 }}>Hi, I'm Ryan, maker of this app.</p>
               <p style={{ textAlign: "center" }}>
@@ -1398,9 +1398,9 @@ export default class App extends Component {
               <p>
                 <a
                   style={{ color: "rgba(255, 255, 255, 1)" }}
-                  href={"mailto:ryanjyost@gmail.com"}
+                  href={"mailto:ryan@birdseyenews.org"}
                 >
-                  ryanjyost@gmail.com
+                  ryan@birdseyenews.org
                 </a>
               </p>
               <h3>
