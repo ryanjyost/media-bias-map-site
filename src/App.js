@@ -1,101 +1,61 @@
 import React, { Component } from "react";
-import Site from "./components/Site";
-import axios from "axios";
+import axios from "axios/index";
+
 import { Motion, spring } from "react-motion";
 import shuffle from "shuffle-array";
-import Links from "./components/Links";
-import SimpleStorage from "react-simple-storage";
-import moment from "moment";
-import Loader from "react-loader-spinner";
+import {
+  mean,
+  median,
+  standardDeviation,
+  zScore
+} from "simple-statistics/index";
 import ReactGA from "react-ga";
-import detectIt from "detect-it";
+import Home from "./pages/Home";
+import sites from "./sites";
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      linksView: false,
-      hideSources: false,
-      isWideView: false,
-      isFirstVisit: true,
+      view: "frontPages",
+
+      // data
+      politicsArticles: [],
+      opinionArticles: [],
+      round: null,
+
+      //other
+      tag: null,
+      source: null,
+
+      // UI
+      showOverlayMenu: false,
+      scrollY: 0,
+      showTopBar: true,
+      gotLinks: false,
       splashLoaded: false,
       showLoadScreen: true,
       showError: false,
-      imageSizeFactor: 3,
-
-      // nonsaved
-      isMenuOpen: false,
-      showMenuText: false,
-
-      records: [],
-      batch: null,
       screenWidth: 0,
       screenHeight: 0,
-
-      plusHovered: false,
-      plusClicked: false,
-      minusHovered: false,
-      minusClicked: false,
-
       showScrollTop: false,
-
-      // drag scroll
-      isMouseDown: false,
-      startX: 0,
-      startY: 0,
-
-      //links
-      gotLinks: false,
-      links: []
+      isMenuOpen: false
     };
   }
 
-  lsTest() {
-    const test = "test";
-    try {
-      localStorage.setItem(test, test);
-      localStorage.removeItem(test);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
   componentDidMount() {
-    //get recent posts
     axios
-      .get(`https://birds-eye-news-api.herokuapp.com/get_recent`, {
+      .get(`https://birds-eye-news-api.herokuapp.com/get_latest`, {
         Accept: "application/json"
       })
       .then(response => {
-        //let results = response.body.results;
-        // console.log("hey", response.data.records);
-        const records = response.data.records;
-        const randomOrder = shuffle(records, { copy: true });
-        this.setState({ records: randomOrder, batch: response.data.batch });
-
-        let allLinks = [];
-        for (let record of records) {
-          let links = record.content.links
-            .filter(link => {
-              return link.text.length > 5;
-            })
-            .map(link => {
-              return { ...link, site: record.site };
-            });
-          allLinks.push(links);
-        }
-
-        const flattened = allLinks.reduce(function(accumulator, currentValue) {
-          return accumulator.concat(currentValue);
-        }, []);
-
-        const shuffled = shuffle(flattened, { copy: true });
-
         this.setState({
-          links: shuffled,
+          politicsArticles: shuffle(response.data.articles.politics),
+          opinionArticles: shuffle(response.data.articles.opinion),
+          round: response.data.round,
           gotLinks: true,
-          showLoadScreen: false
+          sources: shuffle(sites)
+          // tag: response.data.round.tags[0].term
         });
       })
       .catch(error => {
@@ -103,21 +63,14 @@ export default class App extends Component {
         this.setState({ showError: true });
       });
 
-    this.updateDimensions();
-
     window.addEventListener(
       "resize",
       this.throttle(this.updateDimensions.bind(this), 1000)
     );
 
-    window.addEventListener(
-      "scroll",
-      this.throttle(this.handleScroll.bind(this), 200)
-    );
+    window.addEventListener("scroll", this.handleScroll.bind(this));
 
-    document.addEventListener("keydown", this.handleKeyZoom.bind(this), false);
-
-    setTimeout(this.handleShowMenu.bind(this), 1000);
+    this.updateDimensions();
 
     // google analystics
     this.initReactGA();
@@ -135,37 +88,43 @@ export default class App extends Component {
   updateDimensions() {
     let screenWidth = typeof window !== "undefined" ? window.innerWidth : 0;
     let screenHeight = typeof window !== "undefined" ? window.innerHeight : 0;
-    // let update_height = Math.round(update_width)
 
     this.setState({ screenWidth: screenWidth, screenHeight: screenHeight });
   }
 
-  handleKeyZoom(e) {
-    if (!this.state.linksView) {
-      if (e.keyCode === 187 && e.metaKey) {
-        let imageSizeFactor = this.state.imageSizeFactor;
-        e.preventDefault();
-        this.setState({
-          imageSizeFactor:
-            imageSizeFactor > 1 ? imageSizeFactor - 0.5 : imageSizeFactor
-        });
-      } else if (e.keyCode === 189 && e.metaKey) {
-        let imageSizeFactor = this.state.imageSizeFactor;
-        e.preventDefault();
-        this.setState({
-          imageSizeFactor:
-            imageSizeFactor < 5 ? imageSizeFactor + 0.5 : imageSizeFactor
-        });
-      }
+  handleScroll(e) {
+    let top = e.target.scrollTop;
+    if (window.scrollY > 300 && !this.state.showScrollTop) {
+      this.setState({ showScrollTop: true, showTopBar: false });
+    } else if (
+      window.scrollY < 301 &&
+      this.state.showScrollTop &&
+      !this.state.showOverlayMenu
+    ) {
+      this.setState({ showScrollTop: false, showTopBar: true });
     }
   }
 
-  handleScroll(e) {
-    if (window.scrollY > 100 && !this.state.showScrollTop) {
-      this.setState({ showScrollTop: true });
-    } else if (window.scrollY < 99 && this.state.showScrollTop) {
-      this.setState({ showScrollTop: false });
-    }
+  handleSearch(text) {
+    this.setState({ tag: text, source: null, showOverlayMenu: false });
+    // setTimeout(
+    //   function() {
+    //     this.setState({ pulse: false });
+    //   }.bind(this),
+    //   50
+    // );
+
+    this.scrollTop();
+
+    this.reportSearchToGA(text);
+  }
+
+  reportSearchToGA(text) {
+    ReactGA.event({
+      category: "Input",
+      action: "Searched headlines",
+      value: text
+    });
   }
 
   /**
@@ -193,108 +152,1286 @@ export default class App extends Component {
     };
   }
 
-  handleMouseDown(e) {
-    this.setState({ isMouseDown: true, startX: e.clientX, startY: e.clientY });
-  }
-
-  handleMouseMove(e) {
-    window.scrollTo({
-      left: window.scrollX + this.state.startX - e.clientX,
-      top: window.scrollY + this.state.startY - e.clientY,
-      behavior: "smooth"
-    });
-  }
-
-  handleMouseUp(e) {
-    this.setState({ isMouseDown: false });
-  }
-
-  scrollTop(isSmooth = true) {
+  scrollTop(isSmooth = false, top = 0) {
     window.scrollTo({
       top: 0,
       left: 0,
       behavior: isSmooth ? "smooth" : "auto"
     });
+    this.setState({ showTopBar: true });
   }
 
-  handleShowMenu() {
-    if (this.state.isMenuOpen) {
-      this.setState({
-        isMenuOpen: false,
-        showMenuText: false,
-        isFirstVisit: false
-      });
-    } else {
-      this.setState({ isMenuOpen: true });
-      setTimeout(
-        function() {
-          this.setState({ showMenuText: true });
-        }.bind(this),
-        100
-      );
-    }
+  saveScrollPosition(scrollY) {
+    this.setState({ scrollY: scrollY });
   }
 
-  reportSearchToGA(text) {
-    ReactGA.event({
-      category: "Input",
-      action: "Searched headlines",
-      value: text
-    });
+  resetScroll() {
+    setTimeout(
+      function() {
+        window.scrollTo(0, this.state.scrollY);
+      }.bind(this),
+      0
+    );
+  }
+
+  shuffleTag() {
+    this.setState({ source: null });
+    let tag = this.state.round.tags[
+      Math.floor(Math.random() * this.state.round.tags.length)
+    ];
+
+    this.setState({ tag: tag.term });
+  }
+
+  shuffleSource() {
+    this.setState({ tag: null });
+    let source = this.state.sources[
+      Math.floor(Math.random() * this.state.sources.length)
+    ];
+
+    this.setState({ source });
   }
 
   render() {
     const {
-      records,
-      batch,
-      screenHeight,
+      showError,
+      showTopBar,
+      showOverlayMenu,
       screenWidth,
-      imageSizeFactor,
-      plusHovered,
-      plusClicked,
-      minusHovered,
-      minusClicked,
-      isMenuOpen,
-      linksView,
-      isWideView,
-      showMenuText,
-      isMouseDown,
-      showScrollTop,
-      hideSources,
-      isFirstVisit,
-      showError
+      isMenuOpen
     } = this.state;
 
-    let siteMargin = 5,
-      sitesWide = 5,
-      imageContainerWidth = screenWidth;
+    const isWide = screenWidth > 768;
 
-    let imageHeight = 1024 / imageSizeFactor;
-    let imageWidth = 1024 / imageSizeFactor;
+    const TagFilter = () => {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            margin: "auto",
+            padding: "0px 0px 0px 0px",
+            borderTop: "2px solid #f2f2f2"
+          }}
+        >
+          <div
+            style={{
+              // width: "100%",
+              flex: 0.8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              padding: "0px 10px 0px 20px",
+              backgroundColor: this.state.tag ? "rgba(89, 207, 166, 0.1)" : "",
+              opacity: showOverlayMenu === "sources" ? 0.2 : 1
+            }}
+            onClick={e => {
+              if (!this.state.showOverlayMenu) {
+                this.saveScrollPosition(window.scrollY);
+                this.scrollTop();
+                this.setState({
+                  showOverlayMenu: "tags"
+                });
+              } else if (this.state.showOverlayMenu === "sources") {
+                this.setState({
+                  showOverlayMenu: "tags"
+                });
+              } else {
+                this.resetScroll();
+                this.setState({
+                  showOverlayMenu: false
+                });
+              }
+            }}
+          >
+            <div
+              style={{
+                color: "rgba(0,0,0,0.5)",
+                fontSize: isWide ? 12 : 10,
+                display: "flex",
+                alignItems: "center"
+              }}
+            >
+              <i
+                className="fas fa-angle-right"
+                style={{
+                  marginRight: 3,
+                  fontSize: isWide ? 12 : 10,
+                  color: "rgba(51, 55, 70, 0.5)",
+                  transform:
+                    this.state.showOverlayMenu === "tags"
+                      ? "rotate(90deg)"
+                      : "rotate(0deg)"
+                }}
+              />{" "}
+              Buzzword
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                padding: "0px 10px 0px 10px",
+                height: 35,
+                width: "100%",
+                cursor: "pointer",
+                fontSize: isWide ? 15 : 13,
+                textAlign: "center"
+                // borderLeft: "1px solid #d8d8d8"
+              }}
+            >
+              <div
+                style={{
+                  // borderBottom: "2px solid rgba(89, 207, 166, 1)",
+                  // paddingBottom: 2,
+                  // paddingRight: 5,
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                {this.state.tag ? this.state.tag : "All Buzzwords"}
+              </div>
+            </div>
+          </div>
+          <div
+            className="clickBtn"
+            style={{
+              height: 35,
+              borderLeft: "1px solid #e5e5e5",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minWidth: 60,
+              flex: 0.2,
+              opacity: showOverlayMenu === "sources" ? 0 : 1
+            }}
+            onClick={() => {
+              if (this.state.showOverlayMenu) {
+                this.setState({ showOverlayMenu: false });
+                this.resetScroll();
+              } else {
+                this.shuffleTag();
+                this.scrollTop();
+              }
+            }}
+          >
+            {this.state.showOverlayMenu ? (
+              <div
+                style={{
+                  transform: "rotate(45deg)",
+                  fontSize: 30,
+                  marginLeft: 5,
+                  marginBottom: 4,
+                  color: "rgba(51, 55, 70, 0.5)"
+                }}
+              >
+                +
+              </div>
+            ) : (
+              <i
+                className={"fa fa-random"}
+                style={{ fontSize: 16, color: "rgba(51, 55, 70, 0.8)" }}
+              />
+            )}
+          </div>
+        </div>
+      );
+    };
 
-    sitesWide = Math.max(Math.floor(screenWidth / imageWidth), 6);
-    imageContainerWidth = (imageWidth + siteMargin * 2) * sitesWide;
+    const SourceFilter = () => {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            margin: "auto",
+            padding: "0px 0px 0px 0px",
+            borderTop: "2px solid #f2f2f2"
+          }}
+        >
+          <div
+            style={{
+              // width: "100%",
+              flex: 0.8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              padding: "0px 10px 0px 20px",
+              backgroundColor: this.state.source
+                ? "rgba(89, 207, 166, 0.1)"
+                : "",
+              opacity: showOverlayMenu === "tags" ? 0.2 : 1
+            }}
+            onClick={() => {
+              if (!this.state.showOverlayMenu) {
+                this.saveScrollPosition(window.scrollY);
+                this.scrollTop();
+                this.setState({
+                  showOverlayMenu: "sources"
+                });
+              } else if (this.state.showOverlayMenu === "tags") {
+                this.setState({
+                  showOverlayMenu: "sources"
+                });
+              } else {
+                this.resetScroll();
+                this.setState({
+                  showOverlayMenu: false
+                });
+              }
+            }}
+          >
+            <div
+              style={{
+                color: "rgba(0,0,0,0.5)",
+                fontSize: isWide ? 12 : 10,
+                display: "flex",
+                alignItems: "center"
+              }}
+            >
+              <i
+                className="fas fa-angle-right"
+                style={{
+                  marginRight: 3,
+                  fontSize: isWide ? 12 : 10,
+                  color: "rgba(51, 55, 70, 0.5)",
+                  transform:
+                    this.state.showOverlayMenu === "sources"
+                      ? "rotate(90deg)"
+                      : "rotate(0deg)"
+                }}
+              />{" "}
+              Source
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                padding: "0px 10px 0px 10px",
+                height: 35,
+                width: "100%",
+                cursor: "pointer",
+                fontSize: isWide ? 15 : 13,
+                textAlign: "center"
+                // borderLeft: "1px solid #d8d8d8"
+              }}
+            >
+              <div
+                style={{
+                  // borderBottom: "2px solid rgba(89, 207, 166, 1)",
+                  // paddingBottom: 2,
+                  // paddingRight: 5,
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                {this.state.source ? this.state.source.title : "All Sources"}
+              </div>
+            </div>
+          </div>
+          <div
+            className="clickBtn"
+            style={{
+              height: 35,
+              borderLeft: "1px solid #e5e5e5",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minWidth: 60,
+              flex: 0.2,
+              opacity: showOverlayMenu === "tags" ? 0 : 1
+            }}
+            onClick={() => {
+              if (this.state.showOverlayMenu) {
+                this.setState({ showOverlayMenu: false });
+                this.resetScroll();
+              } else {
+                this.shuffleSource();
+              }
+            }}
+          >
+            {this.state.showOverlayMenu ? (
+              <div
+                style={{
+                  transform: "rotate(45deg)",
+                  fontSize: 30,
+                  marginLeft: 5,
+                  marginBottom: 4,
+                  color: "rgba(51, 55, 70, 0.5)"
+                }}
+                onClick={() => {
+                  this.resetScroll();
+                }}
+              >
+                +
+              </div>
+            ) : (
+              <i
+                className={"fa fa-random"}
+                style={{ fontSize: 16, color: "rgba(51, 55, 70, 0.8)" }}
+              />
+            )}
+          </div>
+        </div>
+      );
+    };
 
-    let updatedTime = null;
-    if (batch) {
-      try {
-        updatedTime = moment(batch.created_at);
-      } catch (e) {
-        updatedTime = null;
+    const TopBarMobile = () => {
+      return (
+        <div
+          style={{
+            position: "fixed",
+            top: "0px",
+            width: "100%",
+            // height: showScrollTop ? 40 : 80,
+            backgroundColor: "#fff",
+            zIndex: 3,
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
+            opacity: 1,
+            borderBottom: "1px solid #d8d8d8"
+            // WebkitBoxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px",
+            // boxShadow: "rgb(136, 136, 136) 1px 7px 13px -11px"
+          }}
+        >
+          {!showTopBar ? null : (
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 13,
+                height: 40,
+                flexFlow: "row wrap",
+                maxWidth: 800,
+                zIndex: 10
+              }}
+            >
+              {/* Hamburger menu */}
+              <Motion
+                defaultStyle={{
+                  topBarRotation: 0,
+                  topBarTop: -4,
+                  wideMenuWidth: 0,
+                  menuHeight: 0,
+                  wideMenuPaddingRight: 0,
+                  wideMenuPaddingLeft: 0,
+                  wideMenuOpacity: 0,
+                  borderRadius: 3,
+                  buttonOpacity: 1
+                }}
+                style={{
+                  topBarRotation: spring(isMenuOpen ? 45 : 0),
+                  topBarTop: spring(isMenuOpen ? 0 : -4),
+                  wideMenuWidth: spring(isMenuOpen ? 200 : 0),
+                  menuHeight: spring(isMenuOpen ? 120 : 0),
+                  wideMenuPaddingRight: spring(isMenuOpen ? 20 : 0),
+                  wideMenuPaddingLeft: spring(isMenuOpen ? 30 : 0),
+                  wideMenuOpacity: spring(isMenuOpen ? 1 : 0),
+                  borderRadius: spring(isMenuOpen ? 0 : 3),
+                  buttonOpacity: spring(isMenuOpen ? 1 : 0.8)
+                }}
+              >
+                {style => (
+                  <div
+                    style={{
+                      order: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                      cursor: "pointer",
+                      position: "relative",
+                      paddingLeft: 20,
+                      opacity: 0,
+                      width: 100
+                    }}
+                    onClick={() =>
+                      this.setState({
+                        isMenuOpen: !isMenuOpen
+                      })
+                    }
+                  >
+                    <div
+                      style={{
+                        position: "relative"
+                      }}
+                      className={"clickBtn"}
+                    >
+                      <div
+                        style={{
+                          width: 15,
+                          height: 2,
+                          backgroundColor: isMenuOpen
+                            ? "rgba(51, 55, 70, 0.7)"
+                            : "rgba(51, 55, 70, 0.7)",
+                          zIndex: 1,
+                          position: "absolute",
+                          top: isMenuOpen ? "0px" : `${-style.topBarTop}px`,
+                          // marginTop: style.topBarMargin,
+                          transform: `rotate(${style.topBarRotation}deg)`,
+                          borderRadius: 9999
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: 15,
+                          height: isMenuOpen ? 0 : 2,
+                          backgroundColor: isMenuOpen
+                            ? "rgba(51, 55, 70, 0.7)"
+                            : "rgba(51, 55, 70, 0.7)",
+                          zIndex: 1,
+                          borderRadius: 9999
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: 15,
+                          height: 2,
+                          backgroundColor: isMenuOpen
+                            ? "rgba(51, 55, 70, 0.7)"
+                            : "rgba(51, 55, 70, 0.7)",
+                          zIndex: 1,
+                          // borderRadius: 30,
+                          // marginBottom: isMenuOpen ? 5 : 0,
+                          top: isMenuOpen ? "0px" : `${style.topBarTop}px`,
+                          position: "absolute",
+                          transform: `rotate(${-style.topBarRotation}deg)`,
+                          borderRadius: 9999
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </Motion>
+
+              <div
+                className={"siteTitle"}
+                style={{
+                  textAlign: "center",
+                  order: 2,
+                  flex: 3,
+                  color: "rgba(51, 55, 70, 0.8)",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  letterSpacing: "0.03em",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                Bird's Eye News
+              </div>
+              <div
+                style={{
+                  textAlign: "right",
+                  order: 3,
+                  width: 100,
+                  paddingRight: 20
+                }}
+                onClick={() =>
+                  this.setState({
+                    showOverlayMenu:
+                      this.state.showOverlayMenu !== "info" ? "info" : null
+                  })
+                }
+              >
+                <i
+                  className={
+                    this.state.showOverlayMenu === "info"
+                      ? `fas fa-times`
+                      : `fas fa-info-circle`
+                  }
+                  style={{
+                    color: "rgba(51, 55, 70, 0.4)",
+                    fontSize: 14,
+                    cursor: "pointer"
+                  }}
+                />
+              </div>
+            </div>
+          )}
+          {/* Nav */}
+          {this.state.view === "headlines" || this.state.view === "opinion" ? (
+            <SourceFilter />
+          ) : null}
+          {this.state.view === "headlines" || this.state.view === "opinion" ? (
+            <TagFilter />
+          ) : null}
+        </div>
+      );
+    };
+
+    const TopBarWide = () => {
+      return (
+        <div
+          style={{
+            position: "fixed",
+            top: "0px",
+            width: "100%",
+            maxWidth: 800,
+            // height: showScrollTop ? 40 : 80,
+            backgroundColor: "#fff",
+            zIndex: 3,
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
+            opacity: 1,
+            border: "1px solid #f2f2f2",
+            borderBottom: "1px solid #d8d8d8"
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 15,
+              height: 50,
+              // flexFlow: "row wrap",
+              maxWidth: 800,
+              zIndex: 10
+            }}
+          >
+            {/* Hamburger menu */}
+            <Motion
+              defaultStyle={{
+                topBarRotation: 0,
+                topBarTop: -4,
+                wideMenuWidth: 0,
+                menuHeight: 0,
+                wideMenuPaddingRight: 0,
+                wideMenuPaddingLeft: 0,
+                wideMenuOpacity: 0,
+                borderRadius: 3,
+                buttonOpacity: 1
+              }}
+              style={{
+                topBarRotation: spring(isMenuOpen ? 45 : 0),
+                topBarTop: spring(isMenuOpen ? 0 : -4),
+                wideMenuWidth: spring(isMenuOpen ? 200 : 0),
+                menuHeight: spring(isMenuOpen ? 120 : 0),
+                wideMenuPaddingRight: spring(isMenuOpen ? 20 : 0),
+                wideMenuPaddingLeft: spring(isMenuOpen ? 30 : 0),
+                wideMenuOpacity: spring(isMenuOpen ? 1 : 0),
+                borderRadius: spring(isMenuOpen ? 0 : 3),
+                buttonOpacity: spring(isMenuOpen ? 1 : 0.8)
+              }}
+            >
+              {style => (
+                <div
+                  style={{
+                    order: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    cursor: "pointer",
+                    position: "relative",
+                    paddingLeft: 20,
+                    opacity: 0,
+                    width: 100
+                  }}
+                  onClick={() =>
+                    this.setState({
+                      isMenuOpen: !isMenuOpen
+                    })
+                  }
+                >
+                  <div
+                    style={{
+                      position: "relative"
+                    }}
+                    className={"clickBtn"}
+                  >
+                    <div
+                      style={{
+                        width: 15,
+                        height: 2,
+                        backgroundColor: isMenuOpen
+                          ? "rgba(51, 55, 70, 0.7)"
+                          : "rgba(51, 55, 70, 0.7)",
+                        zIndex: 1,
+                        position: "absolute",
+                        top: isMenuOpen ? "0px" : `${-style.topBarTop}px`,
+                        // marginTop: style.topBarMargin,
+                        transform: `rotate(${style.topBarRotation}deg)`,
+                        borderRadius: 9999
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: 15,
+                        height: isMenuOpen ? 0 : 2,
+                        backgroundColor: isMenuOpen
+                          ? "rgba(51, 55, 70, 0.7)"
+                          : "rgba(51, 55, 70, 0.7)",
+                        zIndex: 1,
+                        borderRadius: 9999
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: 15,
+                        height: 2,
+                        backgroundColor: isMenuOpen
+                          ? "rgba(51, 55, 70, 0.7)"
+                          : "rgba(51, 55, 70, 0.7)",
+                        zIndex: 1,
+                        // borderRadius: 30,
+                        // marginBottom: isMenuOpen ? 5 : 0,
+                        top: isMenuOpen ? "0px" : `${style.topBarTop}px`,
+                        position: "absolute",
+                        transform: `rotate(${-style.topBarRotation}deg)`,
+                        borderRadius: 9999
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </Motion>
+            <div
+              className={"siteTitle"}
+              style={{
+                textAlign: "center",
+                // flex: 3,
+                color: "rgb(51, 55, 70)",
+                fontSize: 18,
+                fontWeight: "bold",
+                letterSpacing: "0.03em",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 200
+              }}
+            >
+              Bird's Eye News
+            </div>
+            <NavMenu />
+          </div>
+          {this.state.view === "headlines" || this.state.view === "opinion" ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                maxWidth: 800
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", flex: 0.5 }}>
+                <SourceFilter />
+              </div>
+              <span
+                style={{
+                  width: 40,
+                  height: 36,
+                  borderTop: "1px solid #f2f2f2",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#59CFA6"
+                }}
+              >
+                <img
+                  src="https://d1dzf0mjm4jp11.cloudfront.net/favicon-transparent-96x96.png"
+                  height="30px"
+                  width="30px"
+                />
+              </span>
+              <div style={{ display: "flex", alignItems: "center", flex: 0.5 }}>
+                <TagFilter />
+              </div>
+            </div>
+          ) : null}
+        </div>
+      );
+    };
+
+    const NavMenu = () => {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "auto",
+            padding: "0px 0px 0px 0px",
+            zIndex: 1,
+            backgroundColor: "#fff"
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "auto",
+              padding: "0px 0px 0px 0px"
+              // borderTop: "1px solid #d8d8d8"
+            }}
+          >
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "frontPages",
+                  showOverlayMenu: false
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.33,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color:
+                  this.state.view === "frontPages"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
+                padding: "3px 15px 3px 15px",
+                borderBottom:
+                  this.state.view === "frontPages"
+                    ? "2px solid rgba(51, 55, 70, 0.5)"
+                    : "2px solid transparent"
+                // height: 20
+              }}
+              className={"clickBtn"}
+            >
+              Front Pages
+            </div>
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "headlines",
+                  showOverlayMenu: false
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.34,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color:
+                  this.state.view === "headlines"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
+                padding: "3px 15px 3px 15px",
+                borderBottom:
+                  this.state.view === "headlines"
+                    ? "2px solid rgba(51, 55, 70, 0.5)"
+                    : "2px solid transparent"
+              }}
+              className={"clickBtn"}
+            >
+              Headlines
+            </div>
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "opinion",
+                  showOverlayMenu: false
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.33,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color:
+                  this.state.view === "opinion"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
+                padding: "3px 15px 3px 15px",
+                borderBottom:
+                  this.state.view === "opinion"
+                    ? "2px solid rgba(51, 55, 70, 0.5)"
+                    : "2px solid transparent"
+              }}
+              className={"clickBtn"}
+            >
+              Opinions
+            </div>
+            <div
+              style={{
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "rgba(51, 55, 70, 0.7)",
+                padding: "3px 15px 3px 15px",
+                borderBottom: "2px solid transparent",
+                cursor: "pointer"
+              }}
+              onClick={() =>
+                this.setState({
+                  showOverlayMenu:
+                    this.state.showOverlayMenu !== "info" ? "info" : null
+                })
+              }
+            >
+              What is this?
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const BottomMenu = () => {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            margin: "auto",
+            padding: "0px 0px 0px 0px",
+            borderTop: "1px solid #d8d8d8",
+            position: "fixed",
+            bottom: 0,
+            zIndex: 1,
+            backgroundColor: "#fff"
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              margin: "auto",
+              padding: "0px 0px 0px 0px"
+              // borderTop: "1px solid #d8d8d8"
+            }}
+          >
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "frontPages"
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.33,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color:
+                  this.state.view === "frontPages"
+                    ? "rgba(255, 255, 255, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
+                padding: "10px 15px 10px 15px",
+                backgroundColor:
+                  this.state.view === "frontPages"
+                    ? "rgba(51, 55, 70, 0.9)"
+                    : "#fff",
+                fontSize: 13,
+                height: 20
+              }}
+              className={"clickBtn"}
+            >
+              Front Pages
+            </div>
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "headlines"
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.34,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color:
+                  this.state.view === "headlines"
+                    ? "rgba(255, 255, 255, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
+                padding: "10px 15px 10px 15px",
+                backgroundColor:
+                  this.state.view === "headlines"
+                    ? "rgba(51, 55, 70, 0.9)"
+                    : "#fff",
+                fontSize: 13,
+                height: 20
+              }}
+              className={"clickBtn"}
+            >
+              Headlines
+            </div>
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "opinion"
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.33,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color:
+                  this.state.view === "opinion"
+                    ? "rgba(255, 255, 255, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
+                padding: "10px 15px 10px 15px",
+                backgroundColor:
+                  this.state.view === "opinion"
+                    ? "rgba(51, 55, 70, 0.9)"
+                    : "#fff",
+                fontSize: 13,
+                height: 20
+              }}
+              className={"clickBtn"}
+            >
+              Opinions
+            </div>
+            {/*<div*/}
+            {/*onClick={() => {*/}
+            {/*this.setState({*/}
+            {/*view: "topics"*/}
+            {/*});*/}
+            {/*this.scrollTop();*/}
+            {/*}}*/}
+            {/*style={{*/}
+            {/*flex: 0.25,*/}
+            {/*textAlign: "center",*/}
+            {/*display: "flex",*/}
+            {/*alignItems: "center",*/}
+            {/*justifyContent: "center",*/}
+            {/*color:*/}
+            {/*this.state.view === "topics"*/}
+            {/*? "rgba(255, 255, 255, 1)"*/}
+            {/*: "rgba(51, 55, 70, 0.7)",*/}
+            {/*padding: "10px 15px 10px 15px",*/}
+            {/*backgroundColor:*/}
+            {/*this.state.view === "topics" ? "#59CFA6" : "#fff",*/}
+            {/*fontSize: 13,*/}
+            {/*height: 20*/}
+            {/*}}*/}
+            {/*className={"clickBtn"}*/}
+            {/*>*/}
+            {/*Buzzwords*/}
+            {/*</div>*/}
+          </div>
+        </div>
+      );
+    };
+
+    const Tags = ({ round }) => {
+      const tags = round ? round.tags.slice(0, 20) : [];
+      const tagCounts = tags.length
+        ? tags.map(tag => {
+            return tag.tf;
+          })
+        : [];
+      const tagMean = tagCounts.length ? mean(tagCounts) : null;
+      const tagSD = tagMean ? standardDeviation(tagCounts) : null;
+      return (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "baseline",
+            marginBottom: 10,
+            position: "relative",
+            padding: "90px 10px"
+          }}
+        >
+          {this.state.tag ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                width: "100%",
+                margin: "10px 0px"
+              }}
+            >
+              <div
+                style={{
+                  textAlign: "center",
+                  backgroundColor: "#f2f2f2",
+                  padding: "10px 20px",
+                  marginLeft: 10,
+                  borderRadius: 5,
+                  borderColor: "1px solid #e5e5e5",
+                  cursor: "pointer"
+                }}
+                onClick={() => {
+                  this.setState({ tag: null, showOverlayMenu: false });
+                  this.scrollTop();
+                }}
+              >
+                Clear Filter
+              </div>
+            </div>
+          ) : null}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "flex-end",
+              alignItems: "baseline",
+              paddingLeft: 20
+            }}
+          >
+            {tags.length > 0
+              ? tags.map((tag, i) => {
+                  let z = this.state.round ? zScore(tag.tf, tagMean, tagSD) : 1;
+                  let factor = 1 + z;
+                  return (
+                    <span
+                      key={i}
+                      style={{
+                        fontSize: median([Math.floor(30 * factor), 50, 16]),
+                        margin: 5,
+                        padding: "4px 9px",
+                        borderRadius: 3,
+                        backgroundColor:
+                          tag.term === this.state.tag
+                            ? "rgba(51, 55, 70, 1)"
+                            : "rgba(51, 55, 70, 0.7)",
+                        color: "rgba(255,255,255,0.95)",
+                        cursor: "pointer",
+                        textAlign: "right"
+                      }}
+                      onClick={() => this.handleSearch(tag.term)}
+                    >
+                      {tag.term}
+                    </span>
+                  );
+                })
+              : null}
+          </div>
+        </div>
+      );
+    };
+
+    const Sources = () => {
+      return (
+        <div
+          style={{
+            // display: "flex",
+            // flexDirection: "column",
+            // alignItems: "baseline",
+            // position: "relative",
+            padding: "70px 0px"
+            // width: "100%"
+          }}
+        >
+          {this.state.source ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                margin: "10px 0px"
+              }}
+            >
+              <div
+                style={{
+                  textAlign: "center",
+                  backgroundColor: "#f2f2f2",
+                  padding: "10px 20px",
+                  marginLeft: 10,
+                  borderRadius: 5,
+                  borderColor: "1px solid #e5e5e5",
+                  cursor: "pointer"
+                }}
+                onClick={() => {
+                  this.setState({ source: null, showOverlayMenu: false });
+                  this.scrollTop();
+                }}
+              >
+                Clear Filter
+              </div>
+            </div>
+          ) : null}
+          {this.state.sources.map((source, i) => {
+            return (
+              <div
+                key={i}
+                style={{
+                  textAlign: "center",
+                  height: 40,
+                  borderBottom: "1px solid #e5e5e5",
+                  // width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0px 20px",
+                  cursor: "pointer"
+                }}
+                className={"sourceListItem"}
+                onClick={() => {
+                  this.setState({
+                    source: source,
+                    tag: null,
+                    showOverlayMenu: false
+                  });
+                  this.scrollTop();
+                }}
+              >
+                {source.title}
+              </div>
+            );
+          })}
+        </div>
+      );
+    };
+
+    const OverlayMenu = () => {
+      if (this.state.showOverlayMenu === "info") {
+        return (
+          <div
+            style={{
+              backgroundColor: "rgba(51, 55, 70, 0.98)",
+              zIndex: 3,
+              width: "100%",
+              maxWidth: isWide ? 800 : "100%",
+              position: "fixed",
+              top: 0,
+              paddingTop: 70,
+              overflow: "auto",
+              height: "100vh"
+            }}
+          >
+            <div
+              style={{
+                fontSize: 16,
+                position: "absolute",
+                top: "20px",
+                right: "20px",
+                color: "rgba(255, 255, 255, 0.5)",
+                cursor: "pointer"
+              }}
+              onClick={() => this.setState({ showOverlayMenu: false })}
+            >
+              Go Back
+            </div>
+            <div
+              className={"siteTitle"}
+              style={{
+                textAlign: "center",
+                color: "rgba(255, 255, 255, 0.9)",
+                fontSize: 30,
+                fontWeight: "bold",
+                letterSpacing: "0.03em",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%"
+              }}
+            >
+              Bird's Eye News
+            </div>
+            <h4
+              style={{
+                textAlign: "center",
+                color: "rgba(255, 255, 255, 0.9)",
+                marginTop: 10,
+                fontWeight: "normal",
+                lineHeight: "1.5em"
+              }}
+            >
+              A balanced, healthy way to stay informed and <br />
+              <strong>fly above the bullshit.</strong>
+            </h4>
+            <hr
+              style={{
+                width: "90%",
+                margin: "auto",
+                borderColor: "rgba(255, 255, 255, 0.5)"
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                padding: "20px",
+                color: "rgba(255, 255, 255, 0.8)"
+              }}
+            >
+              {/*<p style={{ margin: 5, textAlign: "center" }}>*/}
+              {/*Are you overwhelmed*/}
+              {/*</p>*/}
+              {/*<hr*/}
+              {/*style={{*/}
+              {/*width: "90%",*/}
+              {/*margin: "10 auto",*/}
+              {/*borderColor: "rgba(255, 255, 255, 0.5)"*/}
+              {/*}}*/}
+              {/*/>*/}
+              <img
+                src={"/headshot.jpg"}
+                style={{
+                  borderRadius: 50,
+                  border: "2px solid rgba(255, 255, 255, 0.5)",
+                  marginBottom: 20
+                }}
+                height={50}
+                width={50}
+              />
+              <p style={{ margin: 5 }}>Hi, I'm Ryan, maker of this app.</p>
+              <p style={{ textAlign: "center" }}>
+                <strong>
+                  Shoot me a direct email with any questions, ideas, feedback,
+                  thoughts or harsh truths you have about it.
+                </strong>
+              </p>
+              <p>
+                <a
+                  style={{ color: "rgba(255, 255, 255, 1)" }}
+                  href={"mailto:ryanjyost@gmail.com"}
+                >
+                  ryanjyost@gmail.com
+                </a>
+              </p>
+              <h3>
+                <strong>Seriously</strong> - I'll respond!
+              </h3>
+            </div>
+          </div>
+        );
       }
-    }
-
-    let timeAgo = null;
-    if (updatedTime) {
-      timeAgo = Math.abs(updatedTime.diff(moment(), "minutes"));
-      if (timeAgo < 60) {
-        timeAgo = `${timeAgo} min`;
-      } else if (timeAgo < 76) {
-        timeAgo = `1 hour`;
-      } else {
-        timeAgo = `> 1 hour`;
-      }
-    }
+      return (
+        <div
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.98)",
+            // zIndex: 2,
+            // width: "100%",
+            // position: "fixed",
+            // top: 0,
+            paddingTop: 60,
+            minHeight: "100vh"
+            // overflow: "auto",
+            // height: this.state.sources.length * 30 + 140
+          }}
+        >
+          {this.state.showOverlayMenu === "tags" ? (
+            <Tags round={this.state.round} />
+          ) : (
+            <Sources />
+          )}
+        </div>
+      );
+    };
 
     if (showError && false) {
       return (
@@ -311,629 +1448,25 @@ export default class App extends Component {
       );
     } else {
       return (
-        <div>
-          <Motion
-            defaultStyle={{
-              height: 0,
-              width: 0,
-              opacity: 0
-            }}
-            style={{
-              height: spring(isFirstVisit ? 118 : 0),
-              width: spring(isFirstVisit ? 198 : 0),
-              opacity: spring(isFirstVisit && showMenuText ? 1 : 0)
-            }}
-          >
-            {style => (
-              <div
-                style={{
-                  position: "fixed",
-                  width: style.width,
-                  height: style.height,
-                  opacity: style.opacity,
-                  zIndex: 99,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  top: "60px",
-                  left: "60px",
-                  boxShadow: "8px 11px 28px -12px rgba(0,0,0,0.5)",
-                  backgroundColor: "rgba(240,240,240,0.98)",
-                  border: "1px solid #f2f2f2",
-                  borderBottomRightRadius: 3
-                }}
-              >
-                <div
-                  style={{
-                    padding: "0px 10px 0px 10px",
-                    fontSize: 12,
-                    opacity: style.opacity,
-                    color: "rgba(0,0,0,0.6)"
-                  }}
-                >
-                  Welcome to
-                </div>
-                <div
-                  style={{
-                    padding: "0px 10px",
-                    fontSize: 20,
-                    opacity: style.opacity,
-                    fontWeight: "bold"
-                  }}
-                >
-                  Bird's Eye News
-                </div>
-                <div
-                  style={{
-                    padding: "0px 12px",
-                    fontSize: 14,
-                    opacity: style.opacity,
-                    color: "rgba(0,0,0,0.5)"
-                  }}
-                >
-                  where you can{" "}
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      color: "#59CFA6",
-                      letterSpacing: "0.05em",
-                      fontSize: 16,
-                      opacity: style.opacity
-                    }}
-                  >
-                    fly above the bullshit.
-                  </span>
-                </div>
-              </div>
-            )}
-          </Motion>
-
-          <SimpleStorage
-            parent={this}
-            blacklist={[
-              "isFirstVisit",
-              "records",
-              "batch",
-              "links",
-              "screenWidth",
-              "screenHeight",
-              "plusHovered",
-              "plusClicked",
-              "minusHovered",
-              "minusClicked",
-              "showScrollTop",
-              "isMouseDown",
-              "startX",
-              "startY",
-              "isMenuOpen",
-              "showMenuText",
-              "splashLoaded",
-              "showLoadScreen",
-              "showError",
-              "gotLinks"
-            ]}
-          />
-
-          {/* Hamburger menu */}
-          <Motion
-            defaultStyle={{
-              topBarRotation: 0,
-              topBarTop: -6,
-              wideMenuWidth: 0,
-              menuHeight: 0,
-              wideMenuPaddingRight: 0,
-              wideMenuPaddingLeft: 0,
-              wideMenuOpacity: 0,
-              borderRadius: 3,
-              buttonOpacity: 1
-            }}
-            style={{
-              topBarRotation: spring(isMenuOpen ? 45 : 0),
-              topBarTop: spring(isFirstVisit ? -6 : isMenuOpen ? 0 : -6),
-              wideMenuWidth: spring(isMenuOpen ? 200 : 0),
-              menuHeight: spring(isMenuOpen ? 120 : 0),
-              wideMenuPaddingRight: spring(isMenuOpen ? 20 : 0),
-              wideMenuPaddingLeft: spring(isMenuOpen ? 30 : 0),
-              wideMenuOpacity: spring(isMenuOpen ? 1 : 0),
-              borderRadius: spring(isMenuOpen ? 0 : 3),
-              buttonOpacity: spring(isMenuOpen ? 1 : 0.8)
-            }}
-          >
-            {style => (
-              <div
-                style={{
-                  zIndex: 100,
-                  top: "20px",
-                  left: "20px",
-                  position: "fixed",
-                  display: "flex"
-                }}
-              >
-                <div
-                  style={{
-                    backgroundColor: isMenuOpen ? "#59CFA6" : "#59CFA6",
-                    height: 40,
-                    width: 40,
-                    borderTopRightRadius: style.borderRadius,
-                    borderTopLeftRadius: 3,
-                    borderBottomLeftRadius: style.borderRadius,
-                    borderBottomRightRadius: style.borderRadius,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: isMenuOpen
-                      ? ""
-                      : "8px 11px 28px -12px rgba(0,0,0,1)",
-                    cursor: "pointer",
-                    position: "relative",
-                    zIndex: 20,
-                    opacity: style.buttonOpacity
-                  }}
-                  onClick={() => this.handleShowMenu()}
-                >
-                  <div
-                    style={{
-                      position: "relative"
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 25,
-                        height: 2,
-                        backgroundColor: isMenuOpen
-                          ? "rgba(255, 255, 255, 0.8)"
-                          : "#fff",
-                        zIndex: 20,
-                        position: "absolute",
-                        top: isMenuOpen ? "0px" : `${-style.topBarTop}px`,
-                        // marginTop: style.topBarMargin,
-                        transform: `rotate(${style.topBarRotation}deg)`
-                      }}
-                    />
-                    <div
-                      style={{
-                        width: 25,
-                        height: isMenuOpen ? 0 : 2,
-                        backgroundColor: isMenuOpen
-                          ? "rgba(255, 255, 255, 0.8)"
-                          : "#fff",
-                        zIndex: 20
-                        // borderRadius: 30
-                      }}
-                    />
-                    <div
-                      style={{
-                        width: 25,
-                        height: 2,
-                        backgroundColor: isMenuOpen
-                          ? "rgba(255, 255, 255, 0.8)"
-                          : "#fff",
-                        zIndex: 20,
-                        // borderRadius: 30,
-                        // marginBottom: isMenuOpen ? 5 : 0,
-                        top: isMenuOpen ? "0px" : `${style.topBarTop}px`,
-                        position: "absolute",
-                        transform: `rotate(${-style.topBarRotation}deg)`
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Wide Menu Horz */}
-                <div
-                  style={{
-                    height: 40,
-                    width: style.wideMenuWidth,
-                    // position: "fixed",
-                    zIndex: 10,
-                    // top: "20px",
-                    left: "40px",
-                    display: "flex",
-                    alignItems: "stretch",
-                    justifyContent: "center",
-                    borderTopRightRadius: 3,
-                    borderBottomRightRadius: isFirstVisit ? 0 : 3,
-                    boxShadow: isFirstVisit
-                      ? ""
-                      : "8px 11px 28px -12px rgba(0,0,0,1)",
-                    cursor: "pointer",
-                    position: "absolute",
-                    opacity: style.wideMenuOpacity,
-                    backgroundColor: "rgb(51, 55, 70)"
-                  }}
-                >
-                  <a
-                    className={"menuLink"}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flex: 0.5,
-                      fontSize: 12,
-                      letterSpacing: "0.03em",
-                      zIndex: 20,
-                      color: showMenuText
-                        ? !linksView
-                          ? "#fff"
-                          : "rgba(255, 255, 255, 0.7)"
-                        : "transparent",
-                      borderTop: !linksView
-                        ? "3px solid #59CFA6"
-                        : "3px solid rgb(51, 55, 70)",
-                      opacity: style.wideMenuOpacity
-                    }}
-                    onClick={() => {
-                      this.scrollTop(false);
-                      this.setState({ linksView: false });
-                    }}
-                  >
-                    {"Front \n Pages"}
-                  </a>
-                  <a
-                    className={"menuLink"}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flex: 0.5,
-                      fontSize: 12,
-                      letterSpacing: "0.03em",
-                      borderTopRightRadius: 3,
-                      zIndex: 20,
-                      color: showMenuText
-                        ? linksView
-                          ? "#fff"
-                          : "rgba(255, 255, 255, 0.7)"
-                        : "transparent",
-                      borderTop: linksView
-                        ? "3px solid #59CFA6"
-                        : "3px solid rgb(51, 55, 70)",
-                      opacity: style.wideMenuOpacity
-                    }}
-                    onClick={() => {
-                      this.scrollTop(false);
-                      this.setState({ linksView: true });
-                    }}
-                  >
-                    {"Headlines"}
-                  </a>
-                </div>
-
-                {/* Wide Menu Vert */}
-                <div
-                  style={{
-                    height: style.menuHeight,
-                    width: 40,
-                    borderBottomLeftRadius: 3,
-                    borderBottomRightRadius: isFirstVisit ? 0 : 3,
-                    zIndex: 10,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "stretch",
-                    justifyContent: "center",
-                    boxShadow: "0px 0px 0px 0px rgba(0,0,0,0.8)",
-                    cursor: "pointer",
-                    position: "absolute",
-                    opacity: style.wideMenuOpacity,
-                    top: "40px",
-                    backgroundColor: "rgb(51, 55, 70)"
-                  }}
-                >
-                  <a
-                    className={"menuLink"}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flex: 0.5,
-                      fontSize: 18,
-                      zIndex: 20,
-                      color: showMenuText
-                        ? (!linksView && isWideView) ||
-                          (linksView && !hideSources)
-                          ? "#fff"
-                          : "rgba(255, 255, 255, 0.7)"
-                        : "transparent",
-                      borderLeft:
-                        (!linksView && isWideView) ||
-                        (linksView && !hideSources)
-                          ? "3px solid #59CFA6"
-                          : "3px solid rgb(51, 55, 70)",
-                      opacity: style.wideMenuOpacity
-                    }}
-                    onClick={() => {
-                      if (linksView) {
-                        this.setState({ hideSources: false });
-                      } else {
-                        this.setState({ isWideView: true });
-                      }
-                    }}
-                  >
-                    {linksView ? (
-                      <i className={"fas fa-eye"} />
-                    ) : (
-                      <i className={"fas fa-expand-arrows-alt"} />
-                    )}
-                  </a>
-                  <a
-                    className={"menuLink"}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flex: 0.5,
-                      borderBottomLeftRadius: 3,
-                      borderBottomRightRadius: 3,
-                      color: showMenuText
-                        ? (!linksView && !isWideView) ||
-                          (linksView && hideSources)
-                          ? "#fff"
-                          : "rgba(255, 255, 255, 0.7)"
-                        : "transparent",
-                      fontSize: 18,
-                      borderLeft:
-                        (!linksView && !isWideView) ||
-                        (linksView && hideSources)
-                          ? "3px solid #59CFA6"
-                          : "3px solid rgb(51, 55, 70)",
-                      opacity: style.wideMenuOpacity
-                    }}
-                    onClick={() => {
-                      if (linksView) {
-                        this.setState({ hideSources: true });
-                      } else {
-                        this.setState({ isWideView: false });
-                      }
-                    }}
-                  >
-                    {linksView ? (
-                      <i className={"fas fa-eye-slash"} />
-                    ) : (
-                      <i className={"fas fa-arrows-alt-v"} />
-                    )}
-                  </a>
-                </div>
-              </div>
-            )}
-          </Motion>
-
-          {/* Resize */}
-          {!linksView ? (
-            <Motion defaultStyle={{ x: 0 }} style={{ x: spring(10) }}>
-              {style => (
-                <div
-                  style={{
-                    position: "fixed",
-                    bottom: "20px",
-                    left: "20px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 50,
-                    height: 100,
-                    width: 40,
-                    borderRadius: 3,
-                    backgroundColor: "#fff",
-                    boxShadow: "8px 11px 28px -12px rgba(0,0,0,1)",
-                    opacity: 0.95
-                  }}
-                >
-                  <div
-                    className={"disableTextSelect"}
-                    style={{
-                      flex: 0.5,
-                      display: "flex",
-                      width: "100%",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      backgroundColor: plusClicked ? "#59CFA6CC" : "#59CFA6",
-                      borderTopLeftRadius: 3,
-                      borderTopRightRadius: 3,
-                      fontSize: 30,
-                      fontWeight: plusHovered ? "400" : "100",
-                      color: "#fff"
-                    }}
-                    onClick={() =>
-                      this.setState({
-                        imageSizeFactor:
-                          imageSizeFactor > 1
-                            ? imageSizeFactor - 0.5
-                            : imageSizeFactor
-                      })
-                    }
-                    onMouseEnter={() => this.setState({ plusHovered: true })}
-                    onMouseLeave={() => this.setState({ plusHovered: false })}
-                    onMouseDown={() => this.setState({ plusClicked: true })}
-                    onMouseUp={() => this.setState({ plusClicked: false })}
-                  >
-                    {imageSizeFactor < 1.5 ? null : "+"}
-                  </div>
-                  <div
-                    className={"disableTextSelect"}
-                    style={{
-                      flex: 0.5,
-                      display: "flex",
-                      width: "100%",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      backgroundColor: minusClicked ? "#d8d8d8" : "#fafafa",
-                      borderBottomLeftRadius: 3,
-                      borderBottomRightRadius: 3,
-                      fontSize: minusHovered ? 50 : 45,
-                      fontWeight: "100",
-                      color: "#555"
-                    }}
-                    onClick={() =>
-                      this.setState({
-                        imageSizeFactor:
-                          imageSizeFactor < 5
-                            ? imageSizeFactor + 0.5
-                            : imageSizeFactor
-                      })
-                    }
-                    onMouseEnter={() => this.setState({ minusHovered: true })}
-                    onMouseLeave={() => this.setState({ minusHovered: false })}
-                    onMouseDown={() => this.setState({ minusClicked: true })}
-                    onMouseUp={() => this.setState({ minusClicked: false })}
-                  >
-                    {imageSizeFactor > 4.5 ? null : "-"}
-                  </div>
-                </div>
-              )}
-            </Motion>
-          ) : (
-            <Motion
-              defaultStyle={{ scrollBtnOpacity: 0 }}
-              style={{ scrollBtnOpacity: spring(showScrollTop ? 0.8 : 0) }}
-            >
-              {style => (
-                <div
-                  style={{
-                    position: "fixed",
-                    top: "20px",
-                    right: "20px",
-                    display: showScrollTop ? "flex" : "none",
-                    opacity: showScrollTop ? 0.8 : 0,
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 50,
-                    height: 40,
-                    width: 40,
-                    borderRadius: 3,
-                    backgroundColor: "rgba(51, 55, 70, 1)",
-                    color: "rgba(255,255,255,1)",
-                    cursor: "pointer"
-                  }}
-                  className={"disableTextSelect"}
-                  onClick={() => this.scrollTop()}
-                >
-                  <i className={"fas fa-arrow-up"} />
-                </div>
-              )}
-            </Motion>
-          )}
-
-          {/* Last updated */}
-          <Motion
-            defaultStyle={{ width: 0, textOpacity: 0, divOpacity: 0 }}
-            style={{
-              width: spring(isMenuOpen && timeAgo ? 100 : 0),
-              divOpacity: spring(isMenuOpen && timeAgo ? 1 : 0),
-              textOpacity: spring(showMenuText && timeAgo ? 1 : 0)
-            }}
-          >
-            {style => (
-              <div
-                style={{
-                  height: 30,
-                  width: 100,
-                  zIndex: 10,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "4px 5px 14px -6px rgba(0,0,0,0.5)",
-                  cursor: "pointer",
-                  position: "fixed",
-                  bottom: "20px",
-                  right: "20px",
-                  fontSize: 12,
-                  backgroundColor: "#f2f2f2",
-                  borderRadius: 50,
-                  border: "1px solid #f2f2f2",
-                  opacity: style.divOpacity
-                }}
-              >
-                <div
-                  style={{
-                    opacity: style.textOpacity,
-                    color: "rgba(0,0,0,0.3)"
-                  }}
-                >
-                  <i className="far fa-clock" style={{ marginRight: 5 }} />
-                  {`${timeAgo} ago`}
-                </div>
-              </div>
-            )}
-          </Motion>
-
-          <Motion
-            defaultStyle={{ grayscale: 0 }}
-            style={{
-              grayscale: spring(isMenuOpen ? 50 : 0)
-            }}
-          >
-            {style => (
-              <div
-                style={{
-                  width: isWideView
-                    ? imageContainerWidth + 10
-                    : screenWidth < imageWidth
-                      ? imageWidth
-                      : screenWidth,
-                  margin: "auto",
-                  display: !linksView ? "flex" : "none",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                  WebkitFilter: `grayscale(${style.grayscale}%)`,
-                  filter: `grayscale(${style.grayscale}%)`
-                }}
-                onMouseDown={e => this.handleMouseDown(e)}
-                onMouseMove={e => {
-                  if (isMouseDown) {
-                    this.handleMouseMove(e);
-                  }
-                }}
-                onMouseUp={e => this.handleMouseUp(e)}
-                onDoubleClick={() => {
-                  this.setState({
-                    imageSizeFactor:
-                      imageSizeFactor > 1
-                        ? imageSizeFactor - 0.5
-                        : imageSizeFactor
-                  });
-                }}
-                className={"grabbable"}
-                id={"main"}
-              >
-                {this.state.records.map((record, i) => {
-                  return (
-                    <Site
-                      key={i}
-                      index={i}
-                      record={record}
-                      siteMargin={siteMargin}
-                      imageHeight={imageHeight}
-                      imageWidth={imageWidth}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </Motion>
+        <div style={{ maxWidth: 800, margin: "auto" }}>
+          {isWide ? <TopBarWide /> : <TopBarMobile />}
 
           <div
             style={{
-              width: "100%",
-              margin: "auto",
-              display: linksView ? "flex" : "none",
-              flexWrap: "wrap",
-              backgroundColor: "#fcfcfc"
+              borderLeft: isWide ? "1px solid #f2f2f2" : "none",
+              borderRight: isWide ? "1px solid #f2f2f2" : "none"
             }}
           >
-            <Links
-              records={records}
-              batch={this.state.batch}
-              hideSources={hideSources}
-              links={this.state.links}
-              gotLinks={this.state.gotLinks}
-              handleReportSearchToGA={text => this.reportSearchToGA(text)}
-            />
+            {" "}
+            {showOverlayMenu ? (
+              <OverlayMenu {...this.props} />
+            ) : (
+              <Home {...this.props} {...this.state} isWide={isWide} />
+            )}
           </div>
+
+          {/* search menu */}
+          {showOverlayMenu || isWide ? null : <BottomMenu />}
         </div>
       );
     }
