@@ -8,11 +8,11 @@ export default class Home extends Component {
   }
 
   render() {
-    const { view, round, screenWidth } = this.props;
+    const { view, round, screenWidth, isWide } = this.props;
     return (
       <div>
         <div style={{ display: view === "frontPages" ? "block" : "none" }}>
-          <FrontPages />
+          <FrontPages isWide={isWide} />
         </div>
         <div style={{ display: view === "headlines" ? "block" : "none" }}>
           <Links

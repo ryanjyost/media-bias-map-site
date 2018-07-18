@@ -80,27 +80,28 @@ export default class FrontPages extends Component {
 
   render() {
     const { screenWidth, screenHeight, records } = this.state;
+    const { isWide } = this.props;
 
     let siteMargin = 5,
       sitesWide = 5,
       imageContainerWidth = screenWidth;
 
-    let imageWidth = Math.min(screenWidth, 500);
+    let imageWidth = Math.min(screenWidth, 800);
 
-    sitesWide = Math.max(Math.floor(screenWidth / imageWidth), 6);
+    sitesWide = 1;
     imageContainerWidth = (imageWidth + siteMargin * 2) * sitesWide;
 
     return (
       <div
         style={{
-          width: screenWidth <= imageWidth ? imageWidth : screenWidth,
           margin: "auto",
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "center",
           // WebkitFilter: `grayscale(${style.grayscale}%)`,
           // filter: `grayscale(${style.grayscale}%)`,
-          paddingTop: 35
+          paddingTop: isWide ? 50 : 35,
+          backgroundColor: "#fcfcfc"
         }}
         // onDoubleClick={() => {
         //   this.setState({

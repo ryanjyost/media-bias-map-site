@@ -17,7 +17,7 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      view: "headlines",
+      view: "frontPages",
 
       // data
       politicsArticles: [],
@@ -201,6 +201,8 @@ export default class App extends Component {
       isMenuOpen
     } = this.state;
 
+    const isWide = screenWidth > 768;
+
     const TagFilter = () => {
       return (
         <div
@@ -247,7 +249,7 @@ export default class App extends Component {
             <div
               style={{
                 color: "rgba(0,0,0,0.5)",
-                fontSize: 10,
+                fontSize: isWide ? 12 : 10,
                 display: "flex",
                 alignItems: "center"
               }}
@@ -256,7 +258,7 @@ export default class App extends Component {
                 className="fas fa-angle-right"
                 style={{
                   marginRight: 3,
-                  fontSize: 10,
+                  fontSize: isWide ? 12 : 10,
                   color: "rgba(51, 55, 70, 0.5)",
                   transform:
                     this.state.showOverlayMenu === "tags"
@@ -275,7 +277,7 @@ export default class App extends Component {
                 height: 35,
                 width: "100%",
                 cursor: "pointer",
-                fontSize: 13,
+                fontSize: isWide ? 15 : 13,
                 textAlign: "center"
                 // borderLeft: "1px solid #d8d8d8"
               }}
@@ -386,7 +388,7 @@ export default class App extends Component {
             <div
               style={{
                 color: "rgba(0,0,0,0.5)",
-                fontSize: 10,
+                fontSize: isWide ? 12 : 10,
                 display: "flex",
                 alignItems: "center"
               }}
@@ -395,7 +397,7 @@ export default class App extends Component {
                 className="fas fa-angle-right"
                 style={{
                   marginRight: 3,
-                  fontSize: 10,
+                  fontSize: isWide ? 12 : 10,
                   color: "rgba(51, 55, 70, 0.5)",
                   transform:
                     this.state.showOverlayMenu === "sources"
@@ -414,7 +416,7 @@ export default class App extends Component {
                 height: 35,
                 width: "100%",
                 cursor: "pointer",
-                fontSize: 13,
+                fontSize: isWide ? 15 : 13,
                 textAlign: "center"
                 // borderLeft: "1px solid #d8d8d8"
               }}
@@ -615,7 +617,7 @@ export default class App extends Component {
                   textAlign: "center",
                   order: 2,
                   flex: 3,
-                  color: "rgb(51, 55, 70)",
+                  color: "rgba(51, 55, 70, 0.8)",
                   fontSize: 15,
                   fontWeight: "bold",
                   letterSpacing: "0.03em",
@@ -666,6 +668,324 @@ export default class App extends Component {
       );
     };
 
+    const TopBarWide = () => {
+      return (
+        <div
+          style={{
+            position: "fixed",
+            top: "0px",
+            width: "100%",
+            maxWidth: 800,
+            // height: showScrollTop ? 40 : 80,
+            backgroundColor: "#fff",
+            zIndex: 3,
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
+            opacity: 1,
+            border: "1px solid #f2f2f2",
+            borderBottom: "1px solid #d8d8d8"
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 15,
+              height: 50,
+              // flexFlow: "row wrap",
+              maxWidth: 800,
+              zIndex: 10
+            }}
+          >
+            {/* Hamburger menu */}
+            <Motion
+              defaultStyle={{
+                topBarRotation: 0,
+                topBarTop: -4,
+                wideMenuWidth: 0,
+                menuHeight: 0,
+                wideMenuPaddingRight: 0,
+                wideMenuPaddingLeft: 0,
+                wideMenuOpacity: 0,
+                borderRadius: 3,
+                buttonOpacity: 1
+              }}
+              style={{
+                topBarRotation: spring(isMenuOpen ? 45 : 0),
+                topBarTop: spring(isMenuOpen ? 0 : -4),
+                wideMenuWidth: spring(isMenuOpen ? 200 : 0),
+                menuHeight: spring(isMenuOpen ? 120 : 0),
+                wideMenuPaddingRight: spring(isMenuOpen ? 20 : 0),
+                wideMenuPaddingLeft: spring(isMenuOpen ? 30 : 0),
+                wideMenuOpacity: spring(isMenuOpen ? 1 : 0),
+                borderRadius: spring(isMenuOpen ? 0 : 3),
+                buttonOpacity: spring(isMenuOpen ? 1 : 0.8)
+              }}
+            >
+              {style => (
+                <div
+                  style={{
+                    order: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    cursor: "pointer",
+                    position: "relative",
+                    paddingLeft: 20,
+                    opacity: 0,
+                    width: 100
+                  }}
+                  onClick={() =>
+                    this.setState({
+                      isMenuOpen: !isMenuOpen
+                    })
+                  }
+                >
+                  <div
+                    style={{
+                      position: "relative"
+                    }}
+                    className={"clickBtn"}
+                  >
+                    <div
+                      style={{
+                        width: 15,
+                        height: 2,
+                        backgroundColor: isMenuOpen
+                          ? "rgba(51, 55, 70, 0.7)"
+                          : "rgba(51, 55, 70, 0.7)",
+                        zIndex: 1,
+                        position: "absolute",
+                        top: isMenuOpen ? "0px" : `${-style.topBarTop}px`,
+                        // marginTop: style.topBarMargin,
+                        transform: `rotate(${style.topBarRotation}deg)`,
+                        borderRadius: 9999
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: 15,
+                        height: isMenuOpen ? 0 : 2,
+                        backgroundColor: isMenuOpen
+                          ? "rgba(51, 55, 70, 0.7)"
+                          : "rgba(51, 55, 70, 0.7)",
+                        zIndex: 1,
+                        borderRadius: 9999
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: 15,
+                        height: 2,
+                        backgroundColor: isMenuOpen
+                          ? "rgba(51, 55, 70, 0.7)"
+                          : "rgba(51, 55, 70, 0.7)",
+                        zIndex: 1,
+                        // borderRadius: 30,
+                        // marginBottom: isMenuOpen ? 5 : 0,
+                        top: isMenuOpen ? "0px" : `${style.topBarTop}px`,
+                        position: "absolute",
+                        transform: `rotate(${-style.topBarRotation}deg)`,
+                        borderRadius: 9999
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </Motion>
+            <div
+              className={"siteTitle"}
+              style={{
+                textAlign: "center",
+                // flex: 3,
+                color: "rgb(51, 55, 70)",
+                fontSize: 18,
+                fontWeight: "bold",
+                letterSpacing: "0.03em",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 200
+              }}
+            >
+              Bird's Eye News
+            </div>
+            <NavMenu />
+          </div>
+          {this.state.view === "headlines" || this.state.view === "opinion" ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                maxWidth: 800
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", flex: 0.5 }}>
+                <SourceFilter />
+              </div>
+              <span
+                style={{
+                  width: 40,
+                  height: 36,
+                  borderTop: "1px solid #f2f2f2",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#59CFA6"
+                }}
+              >
+                <img
+                  src="https://d1dzf0mjm4jp11.cloudfront.net/favicon-transparent-96x96.png"
+                  height="30px"
+                  width="30px"
+                />
+              </span>
+              <div style={{ display: "flex", alignItems: "center", flex: 0.5 }}>
+                <TagFilter />
+              </div>
+            </div>
+          ) : null}
+        </div>
+      );
+    };
+
+    const NavMenu = () => {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "auto",
+            padding: "0px 0px 0px 0px",
+            zIndex: 1,
+            backgroundColor: "#fff"
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "auto",
+              padding: "0px 0px 0px 0px"
+              // borderTop: "1px solid #d8d8d8"
+            }}
+          >
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "frontPages",
+                  showOverlayMenu: false
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.33,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color:
+                  this.state.view === "frontPages"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
+                padding: "3px 15px 3px 15px",
+                borderBottom:
+                  this.state.view === "frontPages"
+                    ? "2px solid rgba(51, 55, 70, 0.5)"
+                    : "2px solid transparent"
+                // height: 20
+              }}
+              className={"clickBtn"}
+            >
+              Front Pages
+            </div>
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "headlines",
+                  showOverlayMenu: false
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.34,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color:
+                  this.state.view === "headlines"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
+                padding: "3px 15px 3px 15px",
+                borderBottom:
+                  this.state.view === "headlines"
+                    ? "2px solid rgba(51, 55, 70, 0.5)"
+                    : "2px solid transparent"
+              }}
+              className={"clickBtn"}
+            >
+              Headlines
+            </div>
+            <div
+              onClick={() => {
+                this.setState({
+                  view: "opinion",
+                  showOverlayMenu: false
+                });
+                this.scrollTop();
+              }}
+              style={{
+                flex: 0.33,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color:
+                  this.state.view === "opinion"
+                    ? "rgba(51, 55, 70, 1)"
+                    : "rgba(51, 55, 70, 0.7)",
+                padding: "3px 15px 3px 15px",
+                borderBottom:
+                  this.state.view === "opinion"
+                    ? "2px solid rgba(51, 55, 70, 0.5)"
+                    : "2px solid transparent"
+              }}
+              className={"clickBtn"}
+            >
+              Opinions
+            </div>
+            <div
+              style={{
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "rgba(51, 55, 70, 0.7)",
+                padding: "3px 15px 3px 15px",
+                borderBottom: "2px solid transparent",
+                cursor: "pointer"
+              }}
+              onClick={() =>
+                this.setState({
+                  showOverlayMenu:
+                    this.state.showOverlayMenu !== "info" ? "info" : null
+                })
+              }
+            >
+              What is this?
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     const BottomMenu = () => {
       return (
         <div
@@ -710,7 +1030,7 @@ export default class App extends Component {
                 color:
                   this.state.view === "frontPages"
                     ? "rgba(255, 255, 255, 1)"
-                    : "rgba(51, 55, 70, 0.9)",
+                    : "rgba(51, 55, 70, 0.7)",
                 padding: "10px 15px 10px 15px",
                 backgroundColor:
                   this.state.view === "frontPages"
@@ -830,19 +1150,19 @@ export default class App extends Component {
             alignItems: "baseline",
             marginBottom: 10,
             position: "relative",
-            padding: "70px 10px"
+            padding: "90px 10px"
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              width: "100%",
-              margin: "10px 0px"
-            }}
-          >
-            {this.state.tag ? (
+          {this.state.tag ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                width: "100%",
+                margin: "10px 0px"
+              }}
+            >
               <div
                 style={{
                   textAlign: "center",
@@ -860,8 +1180,8 @@ export default class App extends Component {
               >
                 Clear Filter
               </div>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
           <div
             style={{
               display: "flex",
@@ -917,20 +1237,18 @@ export default class App extends Component {
         >
           {this.state.source ? (
             <div
-              style={
-                {
-                  // display: "flex",
-                  // alignItems: "center",
-                  // justifyContent: "flex-start",
-                  // margin: "10px 0px"
-                }
-              }
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                margin: "10px 0px"
+              }}
             >
               <div
                 style={{
                   textAlign: "center",
                   backgroundColor: "#f2f2f2",
-                  // padding: "10px 20px",
+                  padding: "10px 20px",
                   marginLeft: 10,
                   borderRadius: 5,
                   borderColor: "1px solid #e5e5e5",
@@ -956,8 +1274,10 @@ export default class App extends Component {
                   // width: "100%",
                   display: "flex",
                   alignItems: "center",
-                  padding: "0px 20px"
+                  padding: "0px 20px",
+                  cursor: "pointer"
                 }}
+                className={"sourceListItem"}
                 onClick={() => {
                   this.setState({
                     source: source,
@@ -983,6 +1303,7 @@ export default class App extends Component {
               backgroundColor: "rgba(51, 55, 70, 0.98)",
               zIndex: 3,
               width: "100%",
+              maxWidth: isWide ? 800 : "100%",
               position: "fixed",
               top: 0,
               paddingTop: 70,
@@ -996,7 +1317,8 @@ export default class App extends Component {
                 position: "absolute",
                 top: "20px",
                 right: "20px",
-                color: "rgba(255, 255, 255, 0.5)"
+                color: "rgba(255, 255, 255, 0.5)",
+                cursor: "pointer"
               }}
               onClick={() => this.setState({ showOverlayMenu: false })}
             >
@@ -1060,7 +1382,8 @@ export default class App extends Component {
                 src={"/headshot.jpg"}
                 style={{
                   borderRadius: 50,
-                  border: "2px solid rgba(255, 255, 255, 0.5)"
+                  border: "2px solid rgba(255, 255, 255, 0.5)",
+                  marginBottom: 20
                 }}
                 height={50}
                 width={50}
@@ -1090,13 +1413,13 @@ export default class App extends Component {
       return (
         <div
           style={{
-            // backgroundColor: "rgba(255, 255, 255, 0.98)",
+            backgroundColor: "rgba(255, 255, 255, 0.98)",
             // zIndex: 2,
             // width: "100%",
-            // display: "flex",
             // position: "fixed",
             // top: 0,
-            paddingTop: 60
+            paddingTop: 60,
+            minHeight: "100vh"
             // overflow: "auto",
             // height: this.state.sources.length * 30 + 140
           }}
@@ -1125,27 +1448,25 @@ export default class App extends Component {
       );
     } else {
       return (
-        <div>
-          <TopBarMobile />
+        <div style={{ maxWidth: 800, margin: "auto" }}>
+          {isWide ? <TopBarWide /> : <TopBarMobile />}
 
           <div
-            style={
-              {
-                // WebkitFilter: `grayscale(30%)`,
-                // filter: `grayscale(30%)`
-              }
-            }
+            style={{
+              borderLeft: isWide ? "1px solid #f2f2f2" : "none",
+              borderRight: isWide ? "1px solid #f2f2f2" : "none"
+            }}
           >
             {" "}
             {showOverlayMenu ? (
               <OverlayMenu {...this.props} />
             ) : (
-              <Home {...this.props} {...this.state} />
+              <Home {...this.props} {...this.state} isWide={isWide} />
             )}
           </div>
 
           {/* search menu */}
-          {showOverlayMenu ? null : <BottomMenu />}
+          {showOverlayMenu || isWide ? null : <BottomMenu />}
         </div>
       );
     }

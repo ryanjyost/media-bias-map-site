@@ -14,7 +14,15 @@ export default class Links extends Component {
   }
 
   render() {
-    const { search, round, articles, tag, screenWidth, source } = this.props;
+    const {
+      search,
+      round,
+      articles,
+      tag,
+      screenWidth,
+      source,
+      isWide
+    } = this.props;
 
     // const filteredLinks = allArticles.filter(item => {
     //   let allText = item.title + " " + item.description;
@@ -88,6 +96,7 @@ export default class Links extends Component {
           <div
             style={{
               padding: "110px 0% 100px 0%",
+              paddingTop: isWide ? 90 : 110,
               maxWidth: 700,
               width: "100%",
               margin: "auto"
