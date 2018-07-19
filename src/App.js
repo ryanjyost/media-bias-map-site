@@ -1398,9 +1398,9 @@ export default class App extends Component {
               <p>
                 <a
                   style={{ color: "rgba(255, 255, 255, 1)" }}
-                  href={"mailto:ryan@birdseyenews.org"}
+                  href={"mailto:ryanjyost@gmail.com"}
                 >
-                  ryan@birdseyenews.org
+                  ryanjyost@gmail.com
                 </a>
               </p>
               <h3>
